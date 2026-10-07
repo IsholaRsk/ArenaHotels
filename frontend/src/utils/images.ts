@@ -63,6 +63,25 @@ const GALERIE_PAR_NUMERO: Record<string, string[]> = {
     `${BASE}/chambres/201-2.jpg`,
     `${BASE}/chambres/201-3.jpg`,
   ],
+  '202': [
+    `${BASE}/chambres/202-1.jpg`,
+    `${BASE}/chambres/202-2.jpg`,
+    `${BASE}/chambres/202-3.jpg`,
+  ],
+  '203': [
+    `${BASE}/chambres/203-1.jpg`,
+    `${BASE}/chambres/203-2.jpg`,
+    `${BASE}/chambres/203-3.jpg`,
+  ],
+  '204': [
+    `${BASE}/chambres/204-1.jpg`,
+    `${BASE}/chambres/204-2.jpg`,
+    `${BASE}/chambres/204-3.jpg`,
+  ],
+  '301': [
+    `${BASE}/chambres/301-1.jpg`,
+    `${BASE}/chambres/301-2.jpg`,
+  ],
 };
 
 export const IMAGE_HERO = `${BASE}/hero.jpg`;
