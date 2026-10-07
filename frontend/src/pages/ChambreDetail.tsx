@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { useFetch } from '../hooks/useFetch';
 import type { Chambre } from '../types';
 import { formaterDate, formaterMontant } from '../utils/format';
+import { imageChambre } from '../utils/images';
 
 /** Detail d'une chambre (route dynamique /chambres/:id) + historique */
 export function ChambreDetail() {
@@ -26,6 +27,18 @@ export function ChambreDetail() {
 
   return (
     <>
+      {donnees ? (
+        <div className="bande-hero" style={{ height: 240 }}>
+          <img src={imageChambre(donnees.type)} alt={`Chambre ${donnees.numero}`} />
+          <div className="bande-hero-voile">
+            <div className="bande-hero-titre">Chambre {donnees.numero}</div>
+            <div className="bande-hero-texte">
+              {formaterMontant(donnees.prixParNuit)} / nuit · {donnees.capacite} personne(s) · etage {donnees.etage}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <EntetePage
         titre={donnees ? `Chambre ${donnees.numero}` : 'Chambre'}
         sousTitre="Fiche detaillee et historique des occupations"

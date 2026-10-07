@@ -4,8 +4,7 @@ import { apiChambres } from '../api/client';
 import { EntetePage } from '../components/Layout';
 import {
   Alerte,
-  BadgeChambre,
-  BadgeType,
+  CarteChambre,
   Chargement,
   EtatVide,
   Modale,
@@ -19,7 +18,6 @@ import {
   LIBELLES_TYPE_CHAMBRE,
   STATUTS_CHAMBRE,
   TYPES_CHAMBRE,
-  formaterMontant,
 } from '../utils/format';
 
 const FORMULAIRE_VIDE = {
@@ -32,7 +30,7 @@ const FORMULAIRE_VIDE = {
   statut: 'LIBRE',
 };
 
-/** Gestion du catalogue des chambres (CRUD complet) */
+/** Catalogue des chambres en grille photographique */
 export function Chambres() {
   const { aLeRole } = useAuth();
   const peutGerer = aLeRole('ADMIN', 'RECEPTIONNISTE');
@@ -54,7 +52,7 @@ export function Chambres() {
   const [suppression, setSuppression] = useState<Chambre | null>(null);
 
   const liste = useFetch(
-    () => apiChambres.lister({ page, limit: 10, recherche, type, statut }),
+    () => apiChambres.lister({ page, limit: 12, recherche, type, statut }),
     [page, recherche, type, statut],
   );
 
@@ -71,13 +69,12 @@ export function Chambres() {
     });
   };
 
-  const changerPage = (nouvellePage: number) => {
+  const changerPage = (p: number) =>
     setParams((precedents) => {
       const suivants = new URLSearchParams(precedents);
-      suivants.set('page', String(nouvellePage));
+      suivants.set('page', String(p));
       return suivants;
     });
-  };
 
   const ouvrirCreation = () => {
     setEnEdition(null);
@@ -160,10 +157,10 @@ export function Chambres() {
     <>
       <EntetePage
         titre="Chambres"
-        sousTitre="Catalogue de l'hotel : types, tarifs, capacites et etat."
+        sousTitre="Le catalogue de l'hotel, type par type."
         actions={
           peutGerer ? (
-            <button type="button" className="bouton bouton-accent" onClick={ouvrirCreation}>
+            <button type="button" className="bouton" onClick={ouvrirCreation}>
               + Nouvelle chambre
             </button>
           ) : null
@@ -181,7 +178,6 @@ export function Chambres() {
             </label>
             <input
               id="recherche"
-              name="recherche"
               placeholder="Numero ou mot-cle"
               value={filtres.recherche}
               onChange={(e) => setFiltres({ ...filtres, recherche: e.target.value })}
@@ -191,16 +187,10 @@ export function Chambres() {
             <label className="champ-label" htmlFor="type">
               Type
             </label>
-            <select
-              id="type"
-              value={filtres.type}
-              onChange={(e) => setFiltres({ ...filtres, type: e.target.value })}
-            >
+            <select id="type" value={filtres.type} onChange={(e) => setFiltres({ ...filtres, type: e.target.value })}>
               <option value="">Tous</option>
               {TYPES_CHAMBRE.map((t) => (
-                <option key={t} value={t}>
-                  {LIBELLES_TYPE_CHAMBRE[t]}
-                </option>
+                <option key={t} value={t}>{LIBELLES_TYPE_CHAMBRE[t]}</option>
               ))}
             </select>
           </div>
@@ -208,26 +198,20 @@ export function Chambres() {
             <label className="champ-label" htmlFor="statut">
               Statut
             </label>
-            <select
-              id="statut"
-              value={filtres.statut}
-              onChange={(e) => setFiltres({ ...filtres, statut: e.target.value })}
-            >
+            <select id="statut" value={filtres.statut} onChange={(e) => setFiltres({ ...filtres, statut: e.target.value })}>
               <option value="">Tous</option>
               {STATUTS_CHAMBRE.map((s) => (
-                <option key={s} value={s}>
-                  {LIBELLES_STATUT_CHAMBRE[s]}
-                </option>
+                <option key={s} value={s}>{LIBELLES_STATUT_CHAMBRE[s]}</option>
               ))}
             </select>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="submit" className="bouton">
+            <button type="submit" className="bouton bouton-secondaire">
               Filtrer
             </button>
             <button
               type="button"
-              className="bouton bouton-secondaire"
+              className="bouton-icone"
               onClick={() => {
                 setFiltres({ recherche: '', type: '', statut: '' });
                 setParams(new URLSearchParams());
@@ -238,97 +222,56 @@ export function Chambres() {
           </div>
         </form>
 
-        <div className="carte">
-          {liste.chargement ? <Chargement /> : null}
+        {liste.chargement ? <Chargement /> : null}
 
-          {!liste.chargement && (liste.donnees ?? []).length === 0 ? (
-            <EtatVide
-              icone="🛏️"
-              titre="Aucune chambre ne correspond a ces criteres"
-              texte="Modifiez les filtres ou ajoutez une nouvelle chambre au catalogue."
-            />
-          ) : null}
+        {!liste.chargement && (liste.donnees ?? []).length === 0 ? (
+          <EtatVide
+            icone="🛏️"
+            titre="Aucune chambre ne correspond"
+            texte="Modifiez les filtres ou ajoutez une chambre."
+          />
+        ) : null}
 
-          {!liste.chargement && (liste.donnees ?? []).length > 0 ? (
-            <div className="tableau-conteneur">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Numero</th>
-                    <th>Type</th>
-                    <th>Capacite</th>
-                    <th>Etage</th>
-                    <th className="alignement-droite">Prix / nuit</th>
-                    <th>Statut</th>
-                    <th className="alignement-droite">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(liste.donnees ?? []).map((chambre) => (
-                    <tr key={chambre.id}>
-                      <td className="cellule-principale">
-                        <Link to={`/chambres/${chambre.id}`} className="lien">
-                          {chambre.numero}
-                        </Link>
-                      </td>
-                      <td>
-                        <BadgeType type={chambre.type} />
-                      </td>
-                      <td>{chambre.capacite} pers.</td>
-                      <td>{chambre.etage}</td>
-                      <td className="alignement-droite cellule-principale">
-                        {formaterMontant(chambre.prixParNuit)}
-                      </td>
-                      <td>
-                        <BadgeChambre statut={chambre.statut} />
-                      </td>
-                      <td>
-                        <div className="actions-ligne">
-                          <Link to={`/chambres/${chambre.id}`} className="bouton-icone" title="Detail">
-                            👁
-                          </Link>
-                          {peutGerer ? (
-                            <button
-                              type="button"
-                              className="bouton-icone"
-                              title="Modifier"
-                              onClick={() => ouvrirEdition(chambre)}
-                            >
-                              ✎
-                            </button>
-                          ) : null}
-                          {estAdmin ? (
-                            <button
-                              type="button"
-                              className="bouton-icone"
-                              title="Supprimer"
-                              onClick={() => {
-                                setErreur(null);
-                                setMessage(null);
-                                setSuppression(chambre);
-                              }}
-                            >
-                              🗑
-                            </button>
-                          ) : null}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : null}
+        {!liste.chargement && (liste.donnees ?? []).length > 0 ? (
+          <div className="grille-chambres">
+            {(liste.donnees ?? []).map((chambre) => (
+              <CarteChambre
+                key={chambre.id}
+                chambre={chambre}
+                action={
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <Link to={`/chambres/${chambre.id}`} className="bouton bouton-secondaire bouton-mini">
+                      Voir
+                    </Link>
+                    {peutGerer ? (
+                      <button type="button" className="bouton-icone" title="Modifier" onClick={() => ouvrirEdition(chambre)}>
+                        ✎
+                      </button>
+                    ) : null}
+                    {estAdmin ? (
+                      <button
+                        type="button"
+                        className="bouton-icone"
+                        title="Supprimer"
+                        onClick={() => {
+                          setErreur(null);
+                          setMessage(null);
+                          setSuppression(chambre);
+                        }}
+                      >
+                        🗑
+                      </button>
+                    ) : null}
+                  </div>
+                }
+              />
+            ))}
+          </div>
+        ) : null}
 
-          {meta ? (
-            <Pagination
-              page={meta.page}
-              pages={meta.pages}
-              total={meta.total}
-              onChanger={changerPage}
-            />
-          ) : null}
-        </div>
+        {meta ? (
+          <Pagination page={meta.page} pages={meta.pages} total={meta.total} onChanger={changerPage} />
+        ) : null}
       </div>
 
       <Modale
@@ -337,11 +280,7 @@ export function Chambres() {
         titre={enEdition ? `Modifier la chambre ${enEdition.numero}` : 'Nouvelle chambre'}
         pied={
           <>
-            <button
-              type="button"
-              className="bouton bouton-secondaire"
-              onClick={() => setModaleOuverte(false)}
-            >
+            <button type="button" className="bouton bouton-secondaire" onClick={() => setModaleOuverte(false)}>
               Annuler
             </button>
             <button type="submit" form="formulaire-chambre" className="bouton" disabled={envoiEnCours}>
@@ -354,27 +293,14 @@ export function Chambres() {
         <form id="formulaire-chambre" className="formulaire" onSubmit={enregistrer}>
           <div className="grille-champs">
             <div className="champ">
-              <label className="champ-label" htmlFor="numero">
-                Numero <span className="champ-obligatoire">*</span>
-              </label>
-              <input
-                id="numero"
-                name="numero"
-                value={formulaire.numero}
-                onChange={handleChange}
-                placeholder="Ex : 205"
-                required
-              />
+              <label className="champ-label" htmlFor="numero">Numero</label>
+              <input id="numero" name="numero" value={formulaire.numero} onChange={handleChange} placeholder="Ex : 205" required />
             </div>
             <div className="champ">
-              <label className="champ-label" htmlFor="type-chambre">
-                Type <span className="champ-obligatoire">*</span>
-              </label>
+              <label className="champ-label" htmlFor="type-chambre">Type</label>
               <select id="type-chambre" name="type" value={formulaire.type} onChange={handleChange}>
                 {TYPES_CHAMBRE.map((t) => (
-                  <option key={t} value={t}>
-                    {LIBELLES_TYPE_CHAMBRE[t]}
-                  </option>
+                  <option key={t} value={t}>{LIBELLES_TYPE_CHAMBRE[t]}</option>
                 ))}
               </select>
             </div>
@@ -382,81 +308,30 @@ export function Chambres() {
 
           <div className="grille-champs">
             <div className="champ">
-              <label className="champ-label" htmlFor="prix">
-                Prix par nuit (FCFA) <span className="champ-obligatoire">*</span>
-              </label>
-              <input
-                id="prix"
-                name="prixParNuit"
-                type="number"
-                min={1000}
-                value={formulaire.prixParNuit}
-                onChange={handleChange}
-                required
-              />
+              <label className="champ-label" htmlFor="prix">Prix par nuit (FCFA)</label>
+              <input id="prix" name="prixParNuit" type="number" min={1000} value={formulaire.prixParNuit} onChange={handleChange} required />
             </div>
             <div className="champ">
-              <label className="champ-label" htmlFor="capacite">
-                Capacite (personnes) <span className="champ-obligatoire">*</span>
-              </label>
-              <input
-                id="capacite"
-                name="capacite"
-                type="number"
-                min={1}
-                max={12}
-                value={formulaire.capacite}
-                onChange={handleChange}
-                required
-              />
+              <label className="champ-label" htmlFor="capacite">Capacite (personnes)</label>
+              <input id="capacite" name="capacite" type="number" min={1} max={12} value={formulaire.capacite} onChange={handleChange} required />
             </div>
             <div className="champ">
-              <label className="champ-label" htmlFor="etage">
-                Etage
-              </label>
-              <input
-                id="etage"
-                name="etage"
-                type="number"
-                min={0}
-                max={50}
-                value={formulaire.etage}
-                onChange={handleChange}
-              />
+              <label className="champ-label" htmlFor="etage">Etage</label>
+              <input id="etage" name="etage" type="number" min={0} max={50} value={formulaire.etage} onChange={handleChange} />
             </div>
             <div className="champ">
-              <label className="champ-label" htmlFor="statut-chambre">
-                Statut
-              </label>
-              <select
-                id="statut-chambre"
-                name="statut"
-                value={formulaire.statut}
-                onChange={handleChange}
-              >
+              <label className="champ-label" htmlFor="statut-chambre">Statut</label>
+              <select id="statut-chambre" name="statut" value={formulaire.statut} onChange={handleChange}>
                 {STATUTS_CHAMBRE.map((s) => (
-                  <option key={s} value={s}>
-                    {LIBELLES_STATUT_CHAMBRE[s]}
-                  </option>
+                  <option key={s} value={s}>{LIBELLES_STATUT_CHAMBRE[s]}</option>
                 ))}
               </select>
             </div>
           </div>
 
           <div className="champ">
-            <label className="champ-label" htmlFor="description">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formulaire.description}
-              onChange={handleChange}
-              placeholder="Equipements, vue, services inclus..."
-            />
-            <span className="champ-aide">
-              Le statut d'occupation est recalcule automatiquement selon les reservations.
-            </span>
+            <label className="champ-label" htmlFor="description">Description</label>
+            <textarea id="description" name="description" value={formulaire.description} onChange={handleChange} placeholder="Equipements, vue, services inclus..." />
           </div>
         </form>
       </Modale>
@@ -467,28 +342,17 @@ export function Chambres() {
         titre="Confirmer la suppression"
         pied={
           <>
-            <button
-              type="button"
-              className="bouton bouton-secondaire"
-              onClick={() => setSuppression(null)}
-            >
+            <button type="button" className="bouton bouton-secondaire" onClick={() => setSuppression(null)}>
               Annuler
             </button>
-            <button
-              type="button"
-              className="bouton bouton-danger"
-              onClick={confirmerSuppression}
-              disabled={envoiEnCours}
-            >
+            <button type="button" className="bouton bouton-danger" onClick={confirmerSuppression} disabled={envoiEnCours}>
               {envoiEnCours ? 'Suppression...' : 'Supprimer definitivement'}
             </button>
           </>
         }
       >
         <p style={{ margin: 0 }}>
-          Vous allez supprimer la chambre{' '}
-          <strong>{suppression?.numero}</strong> du catalogue. Les reservations passees
-          associees seront egalement supprimees.
+          Supprimer la chambre <strong>{suppression?.numero}</strong> du catalogue ?
         </p>
         <Alerte type="erreur">{erreur}</Alerte>
       </Modale>

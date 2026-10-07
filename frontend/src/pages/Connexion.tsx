@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Alerte } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { IMAGE_HERO } from '../utils/images';
 
 const COMPTES_DEMO = [
   { role: 'Administrateur', email: 'admin@arenahotels.bj', motDePasse: 'Admin@2026' },
@@ -9,7 +10,7 @@ const COMPTES_DEMO = [
   { role: 'Client', email: 'client@arenahotels.bj', motDePasse: 'Client@2026' },
 ];
 
-/** Page de connexion : formulaire controle avec useState */
+/** Page de connexion minimaliste : photographie pleine hauteur + formulaire epure */
 export function Connexion() {
   const { connexion, chargement, erreur } = useAuth();
   const naviguer = useNavigate();
@@ -38,61 +39,19 @@ export function Connexion() {
 
   return (
     <div className="ecran-connexion">
-      <section className="ecran-connexion-panneau">
-        <div className="marque" style={{ border: 'none', padding: 0, margin: 0 }}>
-          <div className="marque-logo">A</div>
-          <div>
-            <div className="marque-titre">ArenaHotels</div>
-            <div className="marque-sous-titre">Gestion des reservations</div>
-          </div>
-        </div>
-
-        <h1 className="ecran-connexion-titre">
-          Pilotez votre hotel, de la chambre au check-out.
-        </h1>
-        <p className="ecran-connexion-texte">
-          Catalogue des chambres, fiches clients, planning d'occupation en temps reel et
-          controle automatique des disponibilites : une seule interface pour toute la
-          reception.
-        </p>
-
-        <div className="ecran-connexion-liste">
-          <div className="ecran-connexion-element">
-            <span className="ecran-connexion-puce">01</span>
-            <span>Gestion des chambres par type, etage et capacite</span>
-          </div>
-          <div className="ecran-connexion-element">
-            <span className="ecran-connexion-puce">02</span>
-            <span>Fiches clients avec historique des sejours</span>
-          </div>
-          <div className="ecran-connexion-element">
-            <span className="ecran-connexion-puce">03</span>
-            <span>Planning mensuel et detection des sur-reservations</span>
-          </div>
-          <div className="ecran-connexion-element">
-            <span className="ecran-connexion-puce">04</span>
-            <span>Indicateurs d'occupation et revenus du mois</span>
-          </div>
-        </div>
-
-        <div className="ecran-connexion-comptes">
-          <strong style={{ color: '#fff' }}>Comptes de demonstration</strong> — cliquez pour
-          remplir le formulaire :
-          {COMPTES_DEMO.map((compte) => (
-            <div key={compte.email} style={{ marginTop: 6 }}>
-              <code onClick={() => remplir(compte.email, compte.motDePasse)}>
-                {compte.role} : {compte.email}
-              </code>
-            </div>
-          ))}
+      <section className="ecran-connexion-image">
+        <img src={IMAGE_HERO} alt="Facade de l'hotel au crepuscule" />
+        <div className="ecran-connexion-image-legende">
+          Arena Hotels — Cotonou. Quatorze chambres, une seule exigence : le calme.
         </div>
       </section>
 
       <section className="ecran-connexion-formulaire">
         <div className="boite-connexion">
+          <div className="boite-connexion-marque">Arena Hotels</div>
           <h1>Connexion</h1>
           <p className="boite-connexion-sous-titre">
-            Accedez a votre espace avec votre compte ArenaHotels.
+            Accedez a votre espace pour gerer les sejours.
           </p>
 
           <Alerte type="erreur">{erreurLocale ?? erreur}</Alerte>
@@ -100,7 +59,7 @@ export function Connexion() {
           <form className="formulaire" onSubmit={handleSubmit}>
             <div className="champ">
               <label className="champ-label" htmlFor="email">
-                Adresse email <span className="champ-obligatoire">*</span>
+                Adresse email
               </label>
               <input
                 id="email"
@@ -116,7 +75,7 @@ export function Connexion() {
 
             <div className="champ">
               <label className="champ-label" htmlFor="motDePasse">
-                Mot de passe <span className="champ-obligatoire">*</span>
+                Mot de passe
               </label>
               <input
                 id="motDePasse"
@@ -131,9 +90,20 @@ export function Connexion() {
             </div>
 
             <button type="submit" className="bouton" disabled={chargement} style={{ marginTop: 6 }}>
-              {chargement ? 'Connexion en cours...' : 'Se connecter'}
+              {chargement ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
+
+          <div className="ecran-connexion-comptes">
+            Comptes de demonstration — cliquez pour remplir :
+            {COMPTES_DEMO.map((compte) => (
+              <div key={compte.email} style={{ marginTop: 6 }}>
+                <code onClick={() => remplir(compte.email, compte.motDePasse)}>
+                  {compte.role} · {compte.email}
+                </code>
+              </div>
+            ))}
+          </div>
 
           <div className="pied-page-connexion">
             Pas encore de compte ?{' '}

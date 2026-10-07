@@ -178,7 +178,7 @@ export function Planning() {
             <span>
               <span
                 className="legende-pastille"
-                style={{ background: 'var(--primaire-clair)' }}
+                style={{ background: 'var(--accent)' }}
               />
               Reservation confirmee
             </span>
@@ -186,13 +186,13 @@ export function Planning() {
               <span
                 className="legende-pastille"
                 style={{
-                  background: 'repeating-linear-gradient(45deg,#fcd34d,#fcd34d 5px,#fde68a 5px,#fde68a 10px)',
+                  background: 'repeating-linear-gradient(45deg,#c9a227,#c9a227 5px,#e6c860 5px,#e6c860 10px)',
                 }}
               />
               En attente de confirmation
             </span>
             <span>
-              <span className="legende-pastille" style={{ background: '#f1f4f9' }} />
+              <span className="legende-pastille" style={{ background: 'var(--fond-2)' }} />
               Chambre libre
             </span>
             <span>

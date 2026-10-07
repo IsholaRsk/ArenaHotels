@@ -1,14 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiChambres } from '../api/client';
 import { EntetePage } from '../components/Layout';
-import {
-  Alerte,
-  BadgeChambre,
-  BadgeType,
-  Chargement,
-  EtatVide,
-} from '../components/ui';
+import { Alerte, CarteChambre, Chargement, EtatVide } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useFetch } from '../hooks/useFetch';
 import {
@@ -17,12 +11,11 @@ import {
   ajouterJours,
   dateAujourdhui,
   formaterDate,
-  formaterMontant,
 } from '../utils/format';
 
 /**
- * Recherche de disponibilites : la competence "gestion des disponibilites".
- * Le backend verifie le chevauchement des periodes et renvoie les chambres libres.
+ * Recherche de disponibilites : le backend verifie le chevauchement des
+ * periodes et renvoie, pour chaque chambre, si elle est libre ou pas.
  */
 export function Disponibilites() {
   const naviguer = useNavigate();
@@ -80,23 +73,25 @@ export function Disponibilites() {
     naviguer(`/reservations?${params.toString()}`);
   };
 
-  const meta = resultat.meta as { nuits?: number; disponibles?: number; total?: number } | undefined;
+  const meta = resultat.meta as
+    | { nuits?: number; disponibles?: number; total?: number }
+    | undefined;
   const chambres = resultat.donnees ?? [];
 
   return (
     <>
       <EntetePage
         titre="Disponibilites"
-        sousTitre="Verifiez en temps reel les chambres libres sur une periode donnee."
+        sousTitre="Verifiez en temps reel les chambres libres sur une periode."
       />
 
       <div className="page">
         <Alerte type="erreur">{erreur ?? resultat.erreur}</Alerte>
 
-        <form className="barre-filtres carte" onSubmit={lancer}>
+        <form className="barre-filtres carte" onSubmit={lancer} style={{ marginBottom: 26 }}>
           <div className="champ">
             <label className="champ-label" htmlFor="arrivee">
-              Arrivee <span className="champ-obligatoire">*</span>
+              Arrivee
             </label>
             <input
               id="arrivee"
@@ -109,7 +104,7 @@ export function Disponibilites() {
           </div>
           <div className="champ">
             <label className="champ-label" htmlFor="depart">
-              Depart <span className="champ-obligatoire">*</span>
+              Depart
             </label>
             <input
               id="depart"
@@ -135,22 +130,20 @@ export function Disponibilites() {
           </div>
           <div className="champ">
             <label className="champ-label" htmlFor="type-chambre">
-              Type de chambre
+              Type
             </label>
             <select
               id="type-chambre"
               value={criteres.type}
               onChange={(e) => setCriteres({ ...criteres, type: e.target.value })}
             >
-              <option value="">Tous les types</option>
+              <option value="">Tous</option>
               {TYPES_CHAMBRE.map((t) => (
-                <option key={t} value={t}>
-                  {LIBELLES_TYPE_CHAMBRE[t]}
-                </option>
+                <option key={t} value={t}>{LIBELLES_TYPE_CHAMBRE[t]}</option>
               ))}
             </select>
           </div>
-          <button type="submit" className="bouton bouton-accent">
+          <button type="submit" className="bouton">
             Rechercher
           </button>
         </form>
@@ -158,94 +151,43 @@ export function Disponibilites() {
         {resultat.chargement ? <Chargement texte="Verification des disponibilites..." /> : null}
 
         {!resultat.chargement ? (
-          <div className="carte">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: 10,
-                marginBottom: 14,
-              }}
-            >
-              <div>
-                <h2 className="carte-titre">
-                  Sejour du {formaterDate(rechercheActive.arrivee)} au{' '}
-                  {formaterDate(rechercheActive.depart)}
-                </h2>
-                <p className="carte-description" style={{ margin: 0 }}>
-                  {meta?.nuits ?? 0} nuit(s) • {meta?.disponibles ?? 0} chambre(s) disponible(s) sur{' '}
-                  {meta?.total ?? 0}
-                </p>
-              </div>
-            </div>
+          <>
+            <p className="carte-description" style={{ marginBottom: 20 }}>
+              Sejour du {formaterDate(rechercheActive.arrivee)} au{' '}
+              {formaterDate(rechercheActive.depart)} — {meta?.nuits ?? 0} nuit(s) ·{' '}
+              {meta?.disponibles ?? 0} disponible(s) sur {meta?.total ?? 0}
+            </p>
 
             {chambres.length === 0 ? (
-              <EtatVide icone="🔎" titre="Aucune chambre ne correspond a ces criteres" />
+              <EtatVide icone="🔎" titre="Aucune chambre pour ces criteres" />
             ) : (
-              <div className="tableau-conteneur">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Chambre</th>
-                      <th>Type</th>
-                      <th>Capacite</th>
-                      <th className="alignement-droite">Prix / nuit</th>
-                      <th className="alignement-droite">Total du sejour</th>
-                      <th>Etat</th>
-                      <th className="alignement-droite">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {chambres.map((chambre) => (
-                      <tr key={chambre.id}>
-                        <td className="cellule-principale">
-                          <Link to={`/chambres/${chambre.id}`} className="lien">
-                            {chambre.numero}
-                          </Link>
-                          <div className="cellule-secondaire">Etage {chambre.etage}</div>
-                        </td>
-                        <td>
-                          <BadgeType type={chambre.type} />
-                        </td>
-                        <td>{chambre.capacite} pers.</td>
-                        <td className="alignement-droite">{formaterMontant(chambre.prixParNuit)}</td>
-                        <td className="alignement-droite cellule-principale">
-                          {formaterMontant(chambre.prixSejour)}
-                        </td>
-                        <td>
-                          {chambre.disponible ? (
-                            <span className="badge badge-libre">Disponible</span>
-                          ) : (
-                            <>
-                              <BadgeChambre statut={chambre.statut} />
-                              <div className="cellule-secondaire">{chambre.motif}</div>
-                            </>
-                          )}
-                        </td>
-                        <td className="alignement-droite">
-                          {chambre.disponible && peutReserver ? (
-                            <button
-                              type="button"
-                              className="bouton bouton-mini bouton-accent"
-                              onClick={() => reserver(chambre.id)}
-                            >
-                              Reserver
-                            </button>
-                          ) : null}
-                          {chambre.disponible && !peutReserver ? (
-                            <span className="cellule-secondaire">
-                              Reservation par la reception
-                            </span>
-                          ) : null}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grille-chambres">
+                {chambres.map((chambre) => (
+                  <CarteChambre
+                    key={chambre.id}
+                    chambre={chambre}
+                    disponible={chambre.disponible}
+                    motif={chambre.disponible ? undefined : chambre.motif}
+                    prix={chambre.prixSejour}
+                    prixDetail={`pour ${chambre.nuits} nuit(s)`}
+                    action={
+                      chambre.disponible && peutReserver ? (
+                        <button
+                          type="button"
+                          className="bouton bouton-accent bouton-mini"
+                          onClick={() => reserver(chambre.id)}
+                        >
+                          Reserver
+                        </button>
+                      ) : chambre.disponible ? (
+                        <span className="cellule-secondaire">via reception</span>
+                      ) : null
+                    }
+                  />
+                ))}
               </div>
             )}
-          </div>
+          </>
         ) : null}
       </div>
     </>

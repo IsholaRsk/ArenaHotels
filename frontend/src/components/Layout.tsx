@@ -6,19 +6,17 @@ import type { Role } from '../types';
 interface ElementNav {
   vers: string;
   libelle: string;
-  icone: string;
   roles?: Role[];
-  section?: string;
 }
 
 const NAVIGATION: ElementNav[] = [
-  { vers: '/', libelle: 'Tableau de bord', icone: '◈', section: 'Pilotage' },
-  { vers: '/chambres', libelle: 'Chambres', icone: '⌂', section: 'Pilotage' },
-  { vers: '/disponibilites', libelle: 'Disponibilites', icone: '🔎', section: 'Pilotage' },
-  { vers: '/planning', libelle: 'Planning', icone: '▦', section: 'Pilotage' },
-  { vers: '/reservations', libelle: 'Reservations', icone: '✎', section: 'Exploitation' },
-  { vers: '/clients', libelle: 'Clients', icone: '☺', section: 'Exploitation' },
-  { vers: '/profil', libelle: 'Mon profil', icone: '⚙', section: 'Compte' },
+  { vers: '/', libelle: 'Accueil' },
+  { vers: '/chambres', libelle: 'Chambres' },
+  { vers: '/disponibilites', libelle: 'Disponibilites' },
+  { vers: '/planning', libelle: 'Planning' },
+  { vers: '/reservations', libelle: 'Reservations' },
+  { vers: '/clients', libelle: 'Clients' },
+  { vers: '/profil', libelle: 'Profil' },
 ];
 
 const LIBELLES_ROLE: Record<Role, string> = {
@@ -37,8 +35,8 @@ function initiales(nom: string): string {
 }
 
 /**
- * Mise en page commune : barre laterale + zone de contenu.
- * Utilise les routes imbriquees (<Outlet />) de React Router.
+ * Mise en page minimaliste : fine barre superieure + contenu.
+ * Routes imbriquees via <Outlet />.
  */
 export function Layout() {
   const { utilisateur, deconnexion } = useAuth();
@@ -55,49 +53,37 @@ export function Layout() {
       !element.roles || (utilisateur && element.roles.includes(utilisateur.role)),
   );
 
-  let sectionCourante = '';
-
   return (
     <div className="app">
-      <aside className="barre-laterale">
-        <div className="marque">
-          <div className="marque-logo">A</div>
-          <div>
-            <div className="marque-titre">ArenaHotels</div>
-            <div className="marque-sous-titre">Cotonou</div>
-          </div>
+      <header className="barre-haute">
+        <div className="barre-haute-marque">
+          Arena<small>Hotels</small>
         </div>
 
-        <nav className="nav">
-          {liensVisibles.map((element) => {
-            const entete =
-              element.section && element.section !== sectionCourante
-                ? element.section
-                : null;
-            sectionCourante = element.section ?? sectionCourante;
-            return (
-              <div key={element.vers}>
-                {entete ? <div className="nav-section">{entete}</div> : null}
-                <NavLink
-                  to={element.vers}
-                  end={element.vers === '/'}
-                  className={({ isActive }) => `nav-lien ${isActive ? 'actif' : ''}`}
-                >
-                  <span className="nav-icone">{element.icone}</span>
-                  <span>{element.libelle}</span>
-                </NavLink>
-              </div>
-            );
-          })}
+        <nav className="barre-haute-nav">
+          {liensVisibles.map((element) => (
+            <NavLink
+              key={element.vers}
+              to={element.vers}
+              end={element.vers === '/'}
+              className={({ isActive }) =>
+                `barre-haute-lien ${isActive ? 'actif' : ''}`
+              }
+            >
+              {element.libelle}
+            </NavLink>
+          ))}
         </nav>
 
-        <div className="pied-barre">
-          <div className="avatar">{initiales(utilisateur?.nom ?? '?')}</div>
-          <div className="pied-barre-infos">
-            <div className="pied-barre-nom">{utilisateur?.nom}</div>
-            <div className="pied-barre-role">
+        <div className="barre-haute-compte">
+          <div style={{ textAlign: 'right' }}>
+            <div className="barre-haute-compte-nom">{utilisateur?.nom}</div>
+            <div className="barre-haute-compte-role">
               {utilisateur ? LIBELLES_ROLE[utilisateur.role] : ''}
             </div>
+          </div>
+          <div className="avatar" title={utilisateur?.nom ?? ''}>
+            {initiales(utilisateur?.nom ?? '?')}
           </div>
           <button
             type="button"
@@ -109,7 +95,7 @@ export function Layout() {
             ⎋
           </button>
         </div>
-      </aside>
+      </header>
 
       <main className="contenu">
         <Outlet />

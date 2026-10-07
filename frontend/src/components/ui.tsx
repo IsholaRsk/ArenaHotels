@@ -4,7 +4,13 @@ import {
   LIBELLES_STATUT_RESERVATION,
   LIBELLES_TYPE_CHAMBRE,
 } from '../utils/format';
-import type { StatutChambre, StatutReservation, TypeChambre } from '../types';
+import { imageChambre } from '../utils/images';
+import type {
+  Chambre,
+  StatutChambre,
+  StatutReservation,
+  TypeChambre,
+} from '../types';
 
 /** Indicateur de chargement */
 export function Chargement({ texte = 'Chargement en cours...' }: { texte?: string }) {
@@ -152,6 +158,53 @@ export function Modale({
         {pied ? <div className="modale-pied">{pied}</div> : null}
       </div>
     </div>
+  );
+}
+
+/**
+ * Carte chambre minimaliste avec photographie.
+ * Reutilisee par le catalogue, la recherche de disponibilites et la vue client.
+ */
+export function CarteChambre({
+  chambre,
+  disponible,
+  motif,
+  prix,
+  prixDetail,
+  action,
+}: {
+  chambre: Chambre;
+  disponible?: boolean;
+  motif?: string;
+  prix?: number;
+  prixDetail?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <article className="carte-chambre">
+      <div className="carte-chambre-media">
+        <img src={imageChambre(chambre.type)} alt={`Chambre ${chambre.numero}`} loading="lazy" />
+        {disponible === true ? <span className="badge badge-libre">Disponible</span> : null}
+        {disponible === false ? <BadgeChambre statut={chambre.statut} /> : null}
+      </div>
+
+      <div className="carte-chambre-corps">
+        <div className="carte-chambre-titre">Chambre {chambre.numero}</div>
+        <div className="carte-chambre-meta">
+          {LIBELLES_TYPE_CHAMBRE[chambre.type]} · {chambre.capacite} pers. · étage{' '}
+          {chambre.etage}
+        </div>
+        {motif ? <div className="champ-aide" style={{ marginTop: 4 }}>{motif}</div> : null}
+
+        <div className="carte-chambre-pied">
+          <div className="carte-chambre-prix">
+            <strong>{new Intl.NumberFormat('fr-FR').format(prix ?? chambre.prixParNuit)}</strong>{' '}
+            <small>FCFA{prixDetail ? ` ${prixDetail}` : ' / nuit'}</small>
+          </div>
+          {action}
+        </div>
+      </div>
+    </article>
   );
 }
 
