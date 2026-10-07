@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiAuth } from '../api/client';
+import { apiAuth, apiReservations } from '../api/client';
 import { EntetePage } from '../components/Layout';
 import { Alerte, CarteStat } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useFetch } from '../hooks/useFetch';
 import { formaterDate } from '../utils/format';
+import {
+  lireDonneesProfilSupabase,
+  telechargerJson,
+} from '../utils/supabase';
 
 const LIBELLES: Record<string, string> = {
   ADMIN: 'Administrateur : acces complet (chambres, clients, reservations, comptes).',
@@ -17,6 +22,8 @@ const LIBELLES: Record<string, string> = {
 export function Profil() {
   const { utilisateur, deconnexion } = useAuth();
   const naviguer = useNavigate();
+  const [telechargement, setTelechargement] = useState(false);
+  const [msgTelechargement, setMsgTelechargement] = useState<string | null>(null);
 
   // Appel protege : le token JWT est ajoute automatiquement par le client API
   const profil = useFetch(() => apiAuth.profil(), []);
@@ -25,6 +32,41 @@ export function Profil() {
     apiAuth.deconnexion().catch(() => undefined);
     deconnexion();
     naviguer('/connexion', { replace: true });
+  };
+
+  // Prepare et telecharge (JSON) les donnees du profil connecte :
+  // cote application + cote base Supabase du projet.
+  const telechargerMesDonnees = async () => {
+    if (!utilisateur) return;
+    setTelechargement(true);
+    setMsgTelechargement(null);
+    try {
+      const reservations = await apiReservations
+        .lister({ limit: 100 })
+        .then((r) => r.donnees ?? [])
+        .catch(() => []);
+      const supabase = await lireDonneesProfilSupabase(utilisateur.email);
+      telechargerJson(`arena-hotels-profil-${utilisateur.email}.json`, {
+        genereLe: new Date().toISOString(),
+        sources: ['Arena Hotels (API)', 'Supabase'],
+        profil: {
+          id: utilisateur.id,
+          nom: utilisateur.nom,
+          email: utilisateur.email,
+          role: utilisateur.role,
+          telephone: profil.donnees?.telephone ?? null,
+          actif: profil.donnees?.actif !== false,
+          creeLe: profil.donnees?.createdAt ?? null,
+        },
+        reservations,
+        supabase,
+      });
+      setMsgTelechargement('Telechargement de vos donnees lance.');
+    } catch {
+      setMsgTelechargement('Impossible de preparer le telechargement.');
+    } finally {
+      setTelechargement(false);
+    }
   };
 
   return (
@@ -82,19 +124,20 @@ export function Profil() {
         </div>
 
         <div className="carte">
-          <h2 className="carte-titre">Comment fonctionne la session ?</h2>
+          <h2 className="carte-titre">Mes donnees</h2>
           <p className="carte-description">
-            A la connexion, l'API NestJS renvoie un token JWT signe (header, payload,
-            signature). Le frontend le conserve dans le <code>localStorage</code> et
-            l'ajoute automatiquement a chaque requete dans l'en-tete{' '}
-            <code>Authorization: Bearer</code>. Le guard <code>JwtAuthGuard</code> verifie
-            la signature et l'expiration, puis le <code>RolesGuard</code> controle les
-            droits d'acces.
+            Telechargez en JSON les donnees de votre profil connecte, telles
+            qu'elles existent dans l'application et dans la base Supabase du projet.
           </p>
-          <p className="carte-description" style={{ marginBottom: 0 }}>
-            Un code <code>401</code> renvoye par l'API deconnecte automatiquement
-            l'utilisateur et le ramene a la page de connexion.
-          </p>
+          <Alerte type="succes">{msgTelechargement}</Alerte>
+          <button
+            type="button"
+            className="bouton"
+            onClick={telechargerMesDonnees}
+            disabled={telechargement}
+          >
+            {telechargement ? 'Preparation...' : 'Telecharger mes donnees'}
+          </button>
         </div>
       </div>
     </>
