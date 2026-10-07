@@ -27,13 +27,28 @@ const PRINCIPALE_PAR_NUMERO: Record<string, string> = {
   '204': `${BASE}/chambres/204.jpg`,
   '301': `${BASE}/chambres/301.jpg`,
   '302': `${BASE}/chambres/302.jpg`,
+  '303': `${BASE}/chambres/303.jpg`,
+  '401': `${BASE}/chambres/401.jpg`,
+  '402': `${BASE}/chambres/402.jpg`,
+  '403': `${BASE}/chambres/403.jpg`,
 };
 
 /**
  * Mini galerie par chambre : d'autres pieces / angles de la meme chambre
  * (salle de bain, vue, coin salon-bureau, balcon...). Indexee par numero.
  */
-const GALERIE_PAR_NUMERO: Record<string, string[]> = {};
+const GALERIE_PAR_NUMERO: Record<string, string[]> = {
+  '101': [
+    `${BASE}/chambres/101-1.jpg`,
+    `${BASE}/chambres/101-2.jpg`,
+    `${BASE}/chambres/101-3.jpg`,
+  ],
+  '102': [
+    `${BASE}/chambres/102-1.jpg`,
+    `${BASE}/chambres/102-2.jpg`,
+    `${BASE}/chambres/102-3.jpg`,
+  ],
+};
 
 export const IMAGE_HERO = `${BASE}/hero.jpg`;
 export const IMAGE_LOBBY = `${BASE}/lobby.jpg`;
