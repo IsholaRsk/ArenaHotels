@@ -1,68 +1,68 @@
 # Arena Hotels — Conception
 
-> Diagrammes de **cas d'utilisation**, de **classes** et **MLDR** (Modèle Logique de Données Relationnel).
-> Les diagrammes sont écrits en [Mermaid](https://mermaid.js.org) : ils s'affichent nativement sur GitHub, GitLab, VS Code (extension Markdown Preview Mermaid) et Notion.
+> Diagrammes de **cas d'utilisation**, de **classes** et **MLDR** (Modèle Logique de Données Relationnel),
+> conformes au schéma UML de référence du projet.
+> Les diagrammes sont écrits en [Mermaid](https://mermaid.js.org) : ils s'affichent nativement sur GitHub,
+> GitLab, VS Code (extension Markdown Preview Mermaid) et Notion.
 
 ---
 
 ## 1. Diagramme de cas d'utilisation
 
-Trois acteurs : **Client**, **Réceptionniste**, **Administrateur** (hiérarchie de rôles d'un `Utilisateur`).
+Trois acteurs : **Client**, **Réceptionniste**, **Administrateur**.
+L'administrateur hérite des cas du réceptionniste ; la gestion des réservations *inclut* la vérification
+des disponibilités, la création et la confirmation / annulation / clôture ; l'annulation *étend* la
+consultation des réservations.
 
 ```mermaid
 flowchart LR
   Client((Client))
-  Receptionniste(("Réceptionniste"))
-  Admin(("Administrateur"))
+  Receptionniste((Réceptionniste))
+  Administrateur((Administrateur))
 
-  subgraph SYS["Système de réservation — Arena Hotels"]
+  subgraph SYS["Système ArenaHotels"]
     direction TB
-    UC1(["S'authentifier"])
-    UC2(["Consulter les chambres"])
-    UC3(["Vérifier les disponibilités"])
-    UC4(["Réserver"])
-    UC5(["Consulter ses réservations"])
-    UC6(["Annuler sa réservation"])
-    UC7(["Gérer son profil"])
-    UC8(["Gérer les réservations"])
-    UC9(["Check-in / Check-out"])
-    UC10(["Gérer les clients"])
-    UC11(["Gérer les chambres"])
-    UC12(["Gérer les tarifs"])
-    UC13(["Consulter les statistiques"])
-    UC14(["Gérer les utilisateurs"])
-    UC15(["Paramètres · permissions · journal"])
+    AUTH(["S'authentifier"])
+    PROFIL(["Gérer son profil"])
+    CONS_CH(["Consulter les chambres"])
+    VERIF_DISPO(["Vérifier les disponibilités"])
+    CREER_RES(["Créer une réservation"])
+    CONS_RES(["Consulter ses réservations"])
+    ANNULER(["Annuler une réservation"])
+    GERER_RES(["Gérer les réservations"])
+    CONFIRMER(["Confirmer / Annuler / Clôturer une réservation"])
+    GERER_CLI(["Gérer les clients"])
+    GERER_CH(["Gérer les chambres"])
+    STATS(["Consulter les statistiques"])
+    GERER_UTIL(["Gérer les utilisateurs"])
   end
 
-  Client --> UC1 & UC2 & UC3 & UC4 & UC5 & UC6 & UC7
-  Receptionniste --> UC1 & UC2 & UC3 & UC4 & UC8 & UC9 & UC10 & UC11 & UC13
-  Admin --> UC1 & UC2 & UC3 & UC4 & UC8 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15
+  Client --> AUTH & PROFIL & CONS_CH & VERIF_DISPO & CREER_RES & CONS_RES & ANNULER
+  Receptionniste --> GERER_RES & GERER_CLI & GERER_CH & STATS
+  Administrateur --> GERER_UTIL
+  Administrateur -. "«hérite»" .-> Receptionniste
 
-  UC6 -. "«extend»" .-> UC5
-  UC9 -. "«extend»" .-> UC8
-  UC12 -. "«extend»" .-> UC11
+  ANNULER -. "«extend»" .-> CONS_RES
+  GERER_RES -. "«include»" .-> VERIF_DISPO
+  GERER_RES -. "«include»" .-> CREER_RES
+  GERER_RES -. "«include»" .-> CONFIRMER
 ```
 
 ### Matrice de droits (rôle → cas d'utilisation)
 
 | Fonctionnalité | Client | Réceptionniste | Admin |
 |---|:---:|:---:|:---:|
-| Voir chambres | ✅ | ✅ | ✅ |
-| Réserver | ✅ | ✅ | ✅ |
-| Modifier réservation | ses réservations | ✅ | ✅ |
-| Annuler réservation | ses réservations | ✅ | ✅ |
-| Voir réservations | les siennes | toutes | toutes |
-| Check-in / Check-out | ❌ | ✅ | ✅ |
-| Gérer clients | son profil | ✅ | ✅ |
-| Gérer chambres | ❌ | ⚠️ (maj only) | ✅ |
-| Gérer tarifs | ❌ | ❌ | ✅ |
-| Gérer paiements | ses paiements | ✅ | ✅ |
-| Facturation | ses factures | ✅ | ✅ |
-| Statistiques | ❌ | ⚠️ | ✅ |
-| Gérer utilisateurs | ❌ | ❌ | ✅ |
-| Gérer permissions | ❌ | ❌ | ✅ |
-| Paramètres système | ❌ | ❌ | ✅ |
-| Journal d'activité | ❌ | ❌ | ✅ |
+| S'authentifier / profil | ✅ | ✅ | ✅ |
+| Consulter les chambres | ✅ | ✅ | ✅ |
+| Vérifier les disponibilités | ✅ | ✅ | ✅ |
+| Créer une réservation | ✅ | ✅ | ✅ |
+| Consulter ses réservations | les siennes | toutes | toutes |
+| Annuler une réservation | les siennes | ✅ | ✅ |
+| Gérer les réservations (confirmer / clôturer / check-in-out) | ❌ | ✅ | ✅ |
+| Gérer les clients | son profil | ✅ | ✅ |
+| Gérer les chambres | ❌ | ⚠️ (maj only) | ✅ |
+| Consulter les statistiques | ❌ | ⚠️ | ✅ |
+| Gérer les utilisateurs | ❌ | ❌ | ✅ |
 
 ---
 
@@ -81,7 +81,7 @@ classDiagram
     +boolean actif
     +Date creeLe
     +Date majLe
-    +seConnecter()
+    +seConnecter() boolean
   }
 
   class Client {
@@ -107,20 +107,26 @@ classDiagram
     +int etage
     +string description
     +StatutChambre statut
-    +estDisponible(arrivee, depart) bool
+    +Date creeLe
+    +Date majLe
+    +estDisponible(arrivee, depart) boolean
   }
 
   class Reservation {
     +int id
     +string reference
+    +int chambreId
+    +int clientId
     +Date dateArrivee
     +Date dateDepart
     +int nombrePersonnes
     +StatutReservation statut
     +float montantTotal
     +string notes
+    +Date creeLe
+    +Date majLe
     +calculerMontant() float
-    +verifierDisponibilite() bool
+    +verifierDisponibilite() boolean
   }
 
   class Role {
@@ -150,43 +156,26 @@ classDiagram
     ANNULEE
     TERMINEE
   }
-  class Permission {
-    <<enumeration>>
-    RESERVATION_CREATE
-    RESERVATION_READ
-    RESERVATION_UPDATE
-    RESERVATION_CANCEL
-    CLIENT_READ
-    CLIENT_UPDATE
-    ROOM_CREATE
-    ROOM_UPDATE
-    ROOM_DELETE
-    PAYMENT_READ
-    PAYMENT_CREATE
-    USER_CREATE
-    USER_UPDATE
-    USER_DELETE
-    REPORT_READ
-    SETTINGS_UPDATE
-  }
 
-  Utilisateur "1" --> "1" Role : possède
-  Utilisateur "1" ..> "0..1" Client : correspond (même email)
+  Utilisateur "1" --> "1" Role
+  Utilisateur "0..1" -- "1" Client : correspond par email
   Client "1" --> "0..*" Reservation : effectue
-  Chambre "1" --> "0..*" Reservation : est réservée par
+  Chambre "1" --> "0..*" Reservation : concerne
   Chambre --> TypeChambre
   Chambre --> StatutChambre
   Reservation --> StatutReservation
-  Role ..> Permission : donne accès (ROLE_PERMISSIONS)
 ```
 
 **Règles de gestion principales**
 - Une `Reservation` relie exactement **un `Client`** et **une `Chambre`**.
-- **Unicité de la période** : deux réservations bloquantes (`EN_ATTENTE`, `CONFIRMEE`) ne peuvent pas se chevaucher pour une même chambre (pas de sur-réservation).
+- **Unicité de la période** : deux réservations bloquantes (`EN_ATTENTE`, `CONFIRMEE`) ne peuvent pas se
+  chevaucher pour une même chambre (pas de sur-réservation).
 - `dateDepart > dateArrivee` ; `nombrePersonnes ≤ chambre.capacite`.
 - `montantTotal = nombreDeNuits × chambre.prixParNuit`.
-- **Transitions de statut** autorisées : `EN_ATTENTE → {CONFIRMEE, ANNULEE}`, `CONFIRMEE → {TERMINEE, ANNULEE}`, `ANNULEE → {EN_ATTENTE}`, `TERMINEE → {}`.
-- Un **CLIENT** n'agit que sur **ses propres** réservations/fiche ; il peut **annuler** mais pas confirmer ni faire le check-in/out.
+- **Transitions de statut** autorisées : `EN_ATTENTE → {CONFIRMEE, ANNULEE}`, `CONFIRMEE → {TERMINEE, ANNULEE}`,
+  `ANNULEE → {EN_ATTENTE}`, `TERMINEE → {}`.
+- Un **CLIENT** n'agit que sur **ses propres** réservations ; il peut **annuler** mais pas confirmer ni
+  faire le check-in/out.
 
 ---
 
@@ -196,9 +185,9 @@ classDiagram
 
 ```mermaid
 erDiagram
-  UTILISATEUR ||--o| CLIENT : "même email (lien logique)"
-  CLIENT ||--o{ RESERVATION : "effectue (client_id)"
-  CHAMBRE ||--o{ RESERVATION : "concerne (chambre_id)"
+  UTILISATEUR ||--o| CLIENT : "correspond par email"
+  CLIENT ||--o{ RESERVATION : "effectue"
+  CHAMBRE ||--o{ RESERVATION : "concerne"
 
   UTILISATEUR {
     int id PK
@@ -258,10 +247,20 @@ Légende : **souligné** = clé primaire (PK) · `#` = clé étrangère (FK) · 
 - **UTILISATEUR** (<u>id</u>, nom, email `U`, mot_de_passe, role, actif, cree_le, maj_le)
 - **CLIENT** (<u>id</u>, nom, prenom, email `U`, telephone, adresse, ville, pays, notes, cree_le, maj_le)
 - **CHAMBRE** (<u>id</u>, numero `U`, type, prix_par_nuit, capacite, etage, description, statut, cree_le, maj_le)
-- **RESERVATION** (<u>id</u>, reference `U`, #chambre_id, #client_id, date_arrivee, date_depart, nombre_personnes, statut, montant_total, notes, cree_le, maj_le)
+- **RESERVATION** (<u>id</u>, reference `U`, #chambre_id, #client_id, date_arrivee, date_depart,
+  nombre_personnes, statut, montant_total, notes, cree_le, maj_le)
   - #chambre_id → CHAMBRE(id) · #client_id → CLIENT(id)
 
-### 3.3 Dictionnaire des données (extraits)
+### 3.3 Contraintes principales
+
+- email unique dans **UTILISATEUR** et **CLIENT**.
+- numero unique dans **CHAMBRE**.
+- reference unique dans **RESERVATION**.
+- une réservation concerne exactement **un client** et **une chambre**.
+- pas de chevauchement pour les réservations bloquantes.
+- nombre de personnes ≤ capacité de la chambre.
+
+### 3.4 Dictionnaire des données (extraits)
 
 | Table | Colonne | Type | Contraintes | Description |
 |---|---|---|---|---|
@@ -276,4 +275,6 @@ Légende : **souligné** = clé primaire (PK) · `#` = clé étrangère (FK) · 
 | RESERVATION | statut | varchar(20) | EN_ATTENTE/CONFIRMEE/ANNULEE/TERMINEE | Cycle de vie |
 | RESERVATION | montant_total | float | calculé | nuits × prix_par_nuit |
 
-> **Cardinalités** : un `CLIENT` effectue `0..N` `RESERVATION` ; une `CHAMBRE` est concernée par `0..N` `RESERVATION`. Un `UTILISATEUR` (rôle CLIENT) correspond à `0..1` `CLIENT` (association logique par email — la fiche client est créée automatiquement à la première réservation).
+> **Cardinalités** : un `CLIENT` effectue `0..N` `RESERVATION` ; une `CHAMBRE` est concernée par `0..N`
+> `RESERVATION`. Un `UTILISATEUR` (rôle CLIENT) correspond à `0..1` `CLIENT` (association logique par
+> email — la fiche client est créée automatiquement à la première réservation).
