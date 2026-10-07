@@ -40,4 +40,9 @@ export class Utilisateur {
 
   @UpdateDateColumn({ name: 'maj_le' })
   updatedAt: Date;
+
+  /** Methode du diagramme de classes : le compte peut-il se connecter ? */
+  seConnecter(): boolean {
+    return this.actif !== false;
+  }
 }

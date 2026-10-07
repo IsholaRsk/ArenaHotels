@@ -206,3 +206,17 @@ export const apiReservations = {
 export const apiStats = {
   tableauDeBord: () => requete<TableauDeBord>('/stats/tableau-de-bord'),
 };
+
+// ------------------------------------------------------------ Utilisateurs (ADMIN)
+
+export const apiUtilisateurs = {
+  lister: (params?: Parametres) =>
+    requete<Utilisateur[]>('/utilisateurs', { params }),
+  detail: (id: number) => requete<Utilisateur>(`/utilisateurs/${id}`),
+  creer: (donnees: Partial<Utilisateur> & { motDePasse: string }) =>
+    requete<Utilisateur>('/utilisateurs', { methode: 'POST', corps: donnees }),
+  modifier: (id: number, donnees: Partial<Utilisateur> & { motDePasse?: string }) =>
+    requete<Utilisateur>(`/utilisateurs/${id}`, { methode: 'PATCH', corps: donnees }),
+  supprimer: (id: number) =>
+    requete<{ supprime: boolean }>(`/utilisateurs/${id}`, { methode: 'DELETE' }),
+};

@@ -16,6 +16,7 @@ import { Profil } from './pages/Profil';
 import { Reservations } from './pages/Reservations';
 import { Reserver } from './pages/Reserver';
 import { TableauDeBord } from './pages/TableauDeBord';
+import { Utilisateurs } from './pages/Utilisateurs';
 
 /**
  * Plan de routage.
@@ -65,6 +66,9 @@ export default function App() {
             <Route path="reservations" element={<Reservations />} />
             <Route path="clients" element={<Clients />} />
             <Route path="clients/:id" element={<ClientDetail />} />
+          </Route>
+          <Route element={<RouteParRole roles={['ADMIN']} />}>
+            <Route path="utilisateurs" element={<Utilisateurs />} />
           </Route>
         </Route>
       </Route>

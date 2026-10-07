@@ -19,6 +19,8 @@ const NAVIGATION: ElementNav[] = [
   { vers: '/planning', libelle: 'Planning', roles: ['ADMIN', 'RECEPTIONNISTE'] },
   { vers: '/reservations', libelle: 'Reservations', roles: ['ADMIN', 'RECEPTIONNISTE'] },
   { vers: '/clients', libelle: 'Clients', roles: ['ADMIN', 'RECEPTIONNISTE'] },
+  // Reserve a l'administrateur : gestion des comptes
+  { vers: '/utilisateurs', libelle: 'Utilisateurs', roles: ['ADMIN'] },
   { vers: '/profil', libelle: 'Profil', roles: ['ADMIN', 'RECEPTIONNISTE', 'CLIENT'] },
 ];
 
