@@ -206,7 +206,7 @@ export function CarteChambre({
         <div className="carte-chambre-pied">
           <div className="carte-chambre-prix">
             <strong>{new Intl.NumberFormat('fr-FR').format(prix ?? chambre.prixParNuit)}</strong>{' '}
-            <small>FCFA{prixDetail ? ` ${prixDetail}` : ' / nuit'}</small>
+            <small>€{prixDetail ? ` ${prixDetail}` : ' / nuit'}</small>
           </div>
           {action}
         </div>

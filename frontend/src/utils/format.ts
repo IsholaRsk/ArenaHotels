@@ -2,7 +2,11 @@ import type { StatutChambre, StatutReservation, TypeChambre } from '../types';
 
 /** Formatage des montants en francs CFA */
 export function formaterMontant(montant: number): string {
-  return `${new Intl.NumberFormat('fr-FR').format(Math.round(montant || 0))} FCFA`;
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  }).format(montant || 0);
 }
 
 const MOIS = [

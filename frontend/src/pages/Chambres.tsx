@@ -308,8 +308,8 @@ export function Chambres() {
 
           <div className="grille-champs">
             <div className="champ">
-              <label className="champ-label" htmlFor="prix">Prix par nuit (FCFA)</label>
-              <input id="prix" name="prixParNuit" type="number" min={1000} value={formulaire.prixParNuit} onChange={handleChange} required />
+              <label className="champ-label" htmlFor="prix">Prix par nuit (€)</label>
+              <input id="prix" name="prixParNuit" type="number" min={10} value={formulaire.prixParNuit} onChange={handleChange} required />
             </div>
             <div className="champ">
               <label className="champ-label" htmlFor="capacite">Capacite (personnes)</label>

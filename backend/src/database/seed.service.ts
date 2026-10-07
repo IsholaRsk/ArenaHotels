@@ -100,7 +100,7 @@ export class SeedService implements OnApplicationBootstrap {
       {
         numeros: ['101', '102', '103', '104', '105', '106'],
         type: TypeChambre.SIMPLE,
-        prix: 25000,
+        prix: 90,
         capacite: 1,
         etage: 1,
         description:
@@ -109,7 +109,7 @@ export class SeedService implements OnApplicationBootstrap {
       {
         numeros: ['201', '202', '203', '204', '205', '206'],
         type: TypeChambre.DOUBLE,
-        prix: 40000,
+        prix: 140,
         capacite: 2,
         etage: 2,
         description:
@@ -118,7 +118,7 @@ export class SeedService implements OnApplicationBootstrap {
       {
         numeros: ['301', '302', '303', '304', '305'],
         type: TypeChambre.TWIN,
-        prix: 45000,
+        prix: 160,
         capacite: 2,
         etage: 3,
         description:
@@ -127,7 +127,7 @@ export class SeedService implements OnApplicationBootstrap {
       {
         numeros: ['401', '402', '404'],
         type: TypeChambre.SUITE,
-        prix: 85000,
+        prix: 300,
         capacite: 4,
         etage: 4,
         description:
@@ -136,7 +136,7 @@ export class SeedService implements OnApplicationBootstrap {
       {
         numeros: ['403', '405'],
         type: TypeChambre.FAMILIALE,
-        prix: 70000,
+        prix: 250,
         capacite: 5,
         etage: 4,
         description:
@@ -145,7 +145,7 @@ export class SeedService implements OnApplicationBootstrap {
       {
         numeros: ['501'],
         type: TypeChambre.SUITE,
-        prix: 110000,
+        prix: 450,
         capacite: 4,
         etage: 5,
         description:
@@ -154,7 +154,7 @@ export class SeedService implements OnApplicationBootstrap {
       {
         numeros: ['502'],
         type: TypeChambre.FAMILIALE,
-        prix: 78000,
+        prix: 280,
         capacite: 6,
         etage: 5,
         description:
