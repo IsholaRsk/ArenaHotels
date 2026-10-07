@@ -198,13 +198,50 @@ export function ChambreDetail() {
       </div>
 
       {zoom && photos[photoActive] ? (
-        <div className="voile" onClick={() => setZoom(false)}>
+        <div className="voile voile-galerie" onClick={() => setZoom(false)}>
+          <button
+            type="button"
+            className="zoom-fermer"
+            onClick={() => setZoom(false)}
+            aria-label="Fermer la galerie"
+          >
+            ✕
+          </button>
+          {photos.length > 1 ? (
+            <button
+              type="button"
+              className="zoom-nav zoom-prev"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPhotoActive((photoActive - 1 + photos.length) % photos.length);
+              }}
+              aria-label="Photo precedente"
+            >
+              ‹
+            </button>
+          ) : null}
           <img
             src={photos[photoActive]}
             alt=""
             className="galerie-zoom"
             onClick={(e) => e.stopPropagation()}
           />
+          {photos.length > 1 ? (
+            <button
+              type="button"
+              className="zoom-nav zoom-next"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPhotoActive((photoActive + 1) % photos.length);
+              }}
+              aria-label="Photo suivante"
+            >
+              ›
+            </button>
+          ) : null}
+          <div className="zoom-compteur" onClick={(e) => e.stopPropagation()}>
+            {photoActive + 1} / {photos.length}
+          </div>
         </div>
       ) : null}
     </>

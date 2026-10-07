@@ -98,7 +98,7 @@ export class SeedService implements OnApplicationBootstrap {
       description: string;
     }> = [
       {
-        numeros: ['101', '102', '103', '104'],
+        numeros: ['101', '102', '103', '104', '105', '106'],
         type: TypeChambre.SIMPLE,
         prix: 25000,
         capacite: 1,
@@ -107,7 +107,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Chambre simple confortable avec lit 120 cm, climatiseur et Wi-Fi fibre.',
       },
       {
-        numeros: ['201', '202', '203', '204'],
+        numeros: ['201', '202', '203', '204', '205', '206'],
         type: TypeChambre.DOUBLE,
         prix: 40000,
         capacite: 2,
@@ -116,7 +116,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Chambre double avec grand lit, bureau, television et vue sur la cour.',
       },
       {
-        numeros: ['301', '302', '303'],
+        numeros: ['301', '302', '303', '304', '305'],
         type: TypeChambre.TWIN,
         prix: 45000,
         capacite: 2,
@@ -125,7 +125,7 @@ export class SeedService implements OnApplicationBootstrap {
           'Chambre twin (2 lits separes), ideale pour les voyages professionnels.',
       },
       {
-        numeros: ['401', '402'],
+        numeros: ['401', '402', '404'],
         type: TypeChambre.SUITE,
         prix: 85000,
         capacite: 4,
@@ -134,13 +134,31 @@ export class SeedService implements OnApplicationBootstrap {
           'Suite avec salon prive, minibar, baignoire et balcon panoramique.',
       },
       {
-        numeros: ['403'],
+        numeros: ['403', '405'],
         type: TypeChambre.FAMILIALE,
         prix: 70000,
         capacite: 5,
         etage: 4,
         description:
           'Chambre familiale spacieuse : 1 grand lit + 3 lits simples, coin enfants.',
+      },
+      {
+        numeros: ['501'],
+        type: TypeChambre.SUITE,
+        prix: 110000,
+        capacite: 4,
+        etage: 5,
+        description:
+          'Suite presidentielle du 5e etage : salon separe, terrasse, baignoire et vue panoramique.',
+      },
+      {
+        numeros: ['502'],
+        type: TypeChambre.FAMILIALE,
+        prix: 78000,
+        capacite: 6,
+        etage: 5,
+        description:
+          'Grande familiale du 5e etage : 2 grands lits + 2 lits simples, coin salon et enfants.',
       },
     ];
 

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import {
   LIBELLES_STATUT_CHAMBRE,
   LIBELLES_STATUT_RESERVATION,
@@ -182,11 +183,17 @@ export function CarteChambre({
 }) {
   return (
     <article className="carte-chambre">
-      <div className="carte-chambre-media">
+      <Link
+        to={`/chambres/${chambre.id}`}
+        className="carte-chambre-media"
+        title={`Voir la galerie de la chambre ${chambre.numero}`}
+        aria-label={`Voir la galerie de la chambre ${chambre.numero}`}
+      >
         <img src={imageChambre(chambre)} alt={`Chambre ${chambre.numero}`} loading="lazy" />
         {disponible === true ? <span className="badge badge-libre">Disponible</span> : null}
         {disponible === false ? <BadgeChambre statut={chambre.statut} /> : null}
-      </div>
+        <span className="media-zoom">🔍 Voir la galerie</span>
+      </Link>
 
       <div className="carte-chambre-corps">
         <div className="carte-chambre-titre">Chambre {chambre.numero}</div>
