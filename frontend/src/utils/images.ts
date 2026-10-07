@@ -172,6 +172,8 @@ const GALERIE_PAR_NUMERO: Record<string, string[]> = {
 
 export const IMAGE_HERO = `${BASE}/hero.jpg`;
 export const IMAGE_LOBBY = `${BASE}/lobby.jpg`;
+export const IMAGE_ACCUEIL = `${BASE}/paris-hero.jpg`;
+export const IMAGE_LOUVRE = `${BASE}/louvre.jpg`;
 
 /** Reference minimale d'une chambre pour resoudre ses visuels. */
 export interface RefChambre {

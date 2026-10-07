@@ -11,13 +11,23 @@ import {
 } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useFetch } from '../hooks/useFetch';
-import { IMAGE_LOBBY } from '../utils/images';
+import { IMAGE_ACCUEIL, IMAGE_LOBBY, IMAGE_LOUVRE } from '../utils/images';
 import {
   LIBELLES_TYPE_CHAMBRE,
   dateAujourdhui,
   formaterDate,
   formaterMontant,
 } from '../utils/format';
+
+/** Services mis en avant sur l'accueil client */
+const SERVICES = [
+  { icone: '🛎️', titre: 'Reception 24h/24', texte: 'Une equipe attentionnee, jour et nuit.' },
+  { icone: '🥐', titre: 'Petit-dejeuner', texte: 'Buffet gourmand servi chaque matin.' },
+  { icone: '📶', titre: 'Wi-Fi fibre', texte: 'Connexion rapide et gratuite partout.' },
+  { icone: '🧳', titre: 'Bagagerie', texte: 'Deposez vos bagages avant ou apres le sejour.' },
+  { icone: '🧹', titre: 'Menage quotidien', texte: 'Une chambre impeccable chaque jour.' },
+  { icone: '🗺️', titre: 'Conciergerie', texte: 'Conseils et billets pour vos visites a Paris.' },
+];
 
 /** Page d'accueil : bandeau photographique + indicateurs epures */
 export function TableauDeBord() {
@@ -27,54 +37,62 @@ export function TableauDeBord() {
   const stats = useFetch(() => apiStats.tableauDeBord(), [estDuPersonnel]);
   const catalogue = useFetch(() => apiChambres.lister({ limit: 100 }), []);
 
-  // -------- Vue client : catalogue photographique --------
+  // -------- Vue client : accueil photographique + services + localisation --------
   if (!estDuPersonnel) {
     return (
       <>
-        <div className="bande-hero">
-          <img src={IMAGE_LOBBY} alt="Hall de l'hotel" />
+        <div className="bande-hero bande-hero-grande">
+          <img src={IMAGE_ACCUEIL} alt="Arena Hotels a Paris, pres du Louvre" />
           <div className="bande-hero-voile">
             <div className="bande-hero-titre">
               {utilisateur
                 ? `Bonjour, ${utilisateur.nom.split(' ')[0]}.`
-                : 'Bienvenue chez Arena Hotels.'}
+                : 'Bienvenue chez Arena Hotels, Paris.'}
             </div>
             <div className="bande-hero-texte">
-              Consultez nos chambres et preparez votre prochain sejour a Cotonou.
+              Un ecrin de calme a deux pas du Louvre, au coeur de Paris.
+            </div>
+            <div className="hero-actions">
+              <Link to="/chambres" className="bouton">Decouvrir nos chambres</Link>
+              <Link to="/disponibilites" className="bouton bouton-secondaire">
+                Verifier une disponibilite
+              </Link>
             </div>
           </div>
         </div>
 
         <div className="page">
-          <Alerte type="erreur">{catalogue.erreur}</Alerte>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 22 }}>
-            <h2 className="carte-titre" style={{ fontSize: 24 }}>Nos chambres</h2>
-            <Link to="/disponibilites" className="bouton">
-              Verifier une disponibilite
-            </Link>
+          <h2 className="carte-titre" style={{ fontSize: 24 }}>Nos services</h2>
+          <p className="carte-description">
+            Tout pour un sejour confortable, au coeur de Paris.
+          </p>
+          <div className="grille-services">
+            {SERVICES.map((service) => (
+              <div className="carte carte-service" key={service.titre}>
+                <div className="service-icone">{service.icone}</div>
+                <div className="service-titre">{service.titre}</div>
+                <div className="service-texte">{service.texte}</div>
+              </div>
+            ))}
           </div>
 
-          {catalogue.chargement ? <Chargement /> : null}
-          {!catalogue.chargement && (catalogue.donnees ?? []).length === 0 ? (
-            <EtatVide titre="Aucune chambre publiee" />
-          ) : null}
-
-          {!catalogue.chargement ? (
-            <div className="grille-chambres">
-              {(catalogue.donnees ?? []).map((chambre) => (
-                <CarteChambre
-                  key={chambre.id}
-                  chambre={chambre}
-                  action={
-                    <Link to={`/chambres/${chambre.id}`} className="bouton bouton-secondaire bouton-mini">
-                      Voir
-                    </Link>
-                  }
-                />
-              ))}
+          <div className="carte carte-localisation">
+            <div className="localisation-texte">
+              <h2 className="carte-titre" style={{ fontSize: 24 }}>
+                Au coeur de Paris, pres du Louvre
+              </h2>
+              <p className="carte-description">
+                L'hotel vous place a quelques minutes des plus beaux sites de la capitale.
+              </p>
+              <ul className="localisation-liste">
+                <li>Musee du Louvre — 5 min a pied</li>
+                <li>Jardin des Tuileries — 8 min a pied</li>
+                <li>Seine & Pont Neuf — 6 min a pied</li>
+                <li>Metro Palais-Royal (lignes 1 & 7) — 4 min a pied</li>
+              </ul>
             </div>
-          ) : null}
+            <img src={IMAGE_LOUVRE} alt="Le Louvre, a quelques minutes de l'hotel" />
+          </div>
         </div>
       </>
     );

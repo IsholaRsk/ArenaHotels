@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Alerte } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
-import { IMAGE_HERO } from '../utils/images';
+import { IMAGE_ACCUEIL } from '../utils/images';
 
 const COMPTES_DEMO = [
   { role: 'Administrateur', email: 'admin@arenahotels.bj', motDePasse: 'Admin@2026' },
@@ -43,9 +43,9 @@ export function Connexion() {
   return (
     <div className="ecran-connexion">
       <section className="ecran-connexion-image">
-        <img src={IMAGE_HERO} alt="Facade de l'hotel au crepuscule" />
+        <img src={IMAGE_ACCUEIL} alt="Facade de l'hotel a Paris, pres du Louvre" />
         <div className="ecran-connexion-image-legende">
-          Arena Hotels — Cotonou. Quatorze chambres, une seule exigence : le calme.
+          Arena Hotels — Paris, pres du Louvre. Vingt-quatre chambres, une seule exigence : le calme.
         </div>
       </section>
 
