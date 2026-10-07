@@ -13,39 +13,48 @@ import { Introuvable } from './pages/Introuvable';
 import { Planning } from './pages/Planning';
 import { Profil } from './pages/Profil';
 import { Reservations } from './pages/Reservations';
+import { Reserver } from './pages/Reserver';
 import { TableauDeBord } from './pages/TableauDeBord';
 
 /**
- * Plan de routage de l'application.
- *  - routes publiques : /connexion, /inscription
- *  - routes protegees : tout le reste (token JWT obligatoire)
- *  - routes reservees au personnel : clients, reservations, planning
+ * Plan de routage.
+ *  - consultation publique (sans connexion) : accueil, chambres, disponibilites
+ *  - connexion obligatoire : finaliser une reservation, profil
+ *  - reserve au personnel : planning, reservations, clients
  *  - route * : page 404
  */
 export default function App() {
-  const { connecte, chargement } = useAuth();
+  const { chargement } = useAuth();
 
   if (chargement) {
-    return <div className="chargement" style={{ height: '100vh', justifyContent: 'center' }}><div className="roue" /></div>;
+    return (
+      <div className="chargement" style={{ height: '100vh', justifyContent: 'center' }}>
+        <div className="roue" />
+      </div>
+    );
   }
 
   return (
     <Routes>
       <Route
         path="/connexion"
-        element={connecte ? <Navigate to="/" replace /> : <Connexion />}
+        element={<Connexion />}
       />
       <Route
         path="/inscription"
-        element={connecte ? <Navigate to="/" replace /> : <Inscription />}
+        element={<Inscription />}
       />
 
-      <Route element={<RouteProtegee />}>
-        <Route element={<Layout />}>
-          <Route index element={<TableauDeBord />} />
-          <Route path="chambres" element={<Chambres />} />
-          <Route path="chambres/:id" element={<ChambreDetail />} />
-          <Route path="disponibilites" element={<Disponibilites />} />
+      <Route element={<Layout />}>
+        {/* Consultation libre, sans compte */}
+        <Route index element={<TableauDeBord />} />
+        <Route path="chambres" element={<Chambres />} />
+        <Route path="chambres/:id" element={<ChambreDetail />} />
+        <Route path="disponibilites" element={<Disponibilites />} />
+
+        {/* Connexion obligatoire */}
+        <Route element={<RouteProtegee />}>
+          <Route path="reserver" element={<Reserver />} />
           <Route path="profil" element={<Profil />} />
 
           {/* Reserve au personnel de l'hotel */}

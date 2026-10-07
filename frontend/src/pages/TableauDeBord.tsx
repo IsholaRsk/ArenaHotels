@@ -34,7 +34,11 @@ export function TableauDeBord() {
         <div className="bande-hero">
           <img src={IMAGE_LOBBY} alt="Hall de l'hotel" />
           <div className="bande-hero-voile">
-            <div className="bande-hero-titre">Bonjour, {utilisateur?.nom?.split(' ')[0] ?? ''}.</div>
+            <div className="bande-hero-titre">
+              {utilisateur
+                ? `Bonjour, ${utilisateur.nom.split(' ')[0]}.`
+                : 'Bienvenue chez Arena Hotels.'}
+            </div>
             <div className="bande-hero-texte">
               Consultez nos chambres et preparez votre prochain sejour a Cotonou.
             </div>

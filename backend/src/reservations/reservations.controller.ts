@@ -10,10 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from '../common/decorators/roles.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Role } from '../common/enums';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import {
   CreateReservationDto,
   FiltreReservationsQueryDto,
@@ -56,8 +58,8 @@ export class ReservationsController {
   /** POST /api/reservations — nouvelle reservation (verifie les disponibilites) */
   @Post()
   @Roles(Role.ADMIN, Role.RECEPTIONNISTE, Role.CLIENT)
-  create(@Body() dto: CreateReservationDto) {
-    return this.service.create(dto);
+  create(@Body() dto: CreateReservationDto, @CurrentUser() user: JwtPayload) {
+    return this.service.create(dto, user);
   }
 
   /** PATCH /api/reservations/:id */

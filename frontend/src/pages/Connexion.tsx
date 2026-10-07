@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Alerte } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { IMAGE_HERO } from '../utils/images';
@@ -12,9 +12,12 @@ const COMPTES_DEMO = [
 
 /** Page de connexion minimaliste : photographie pleine hauteur + formulaire epure */
 export function Connexion() {
-  const { connexion, chargement, erreur } = useAuth();
+  const { connexion, chargement, erreur, connecte } = useAuth();
   const naviguer = useNavigate();
   const emplacement = useLocation() as { state?: { depuis?: string } };
+
+  // Un visiteur deja connecte n'a pas besoin de se reconnecter.
+  if (connecte) return <Navigate to={emplacement.state?.depuis ?? '/'} replace />;
 
   const [formulaire, setFormulaire] = useState({ email: '', motDePasse: '' });
   const [erreurLocale, setErreurLocale] = useState<string | null>(null);

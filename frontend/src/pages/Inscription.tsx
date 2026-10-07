@@ -1,28 +1,26 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Alerte } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { IMAGE_LOBBY } from '../utils/images';
 
-const PAYS = ['Benin', 'Togo', 'Nigeria', "Cote d'Ivoire", 'Senegal', 'France', 'Autre'];
-
-/** Inscription publique minimaliste, meme trame que la connexion */
+/** Inscription publique : on ne demande que le strict necessaire */
 export function Inscription() {
-  const { inscription, chargement, erreur } = useAuth();
+  const { inscription, chargement, erreur, connecte } = useAuth();
   const naviguer = useNavigate();
+
+  if (connecte) return <Navigate to="/" replace />;
 
   const [formulaire, setFormulaire] = useState({
     nom: '',
     email: '',
-    telephone: '',
-    pays: '',
     motDePasse: '',
     confirmation: '',
     accepte: false,
   });
   const [erreurLocale, setErreurLocale] = useState<string | null>(null);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     const cible = e.target as HTMLInputElement;
     setFormulaire({ ...formulaire, [name]: type === 'checkbox' ? cible.checked : value });
@@ -44,7 +42,6 @@ export function Inscription() {
         nom: formulaire.nom,
         email: formulaire.email,
         motDePasse: formulaire.motDePasse,
-        telephone: formulaire.telephone || undefined,
       });
       naviguer('/', { replace: true });
     } catch {
@@ -97,34 +94,8 @@ export function Inscription() {
                 onChange={handleChange}
                 required
               />
-            </div>
-
-            <div className="grille-champs">
-              <div className="champ">
-                <label className="champ-label" htmlFor="telephone">
-                  Telephone
-                </label>
-                <input
-                  id="telephone"
-                  name="telephone"
-                  type="tel"
-                  placeholder="+229 ..."
-                  value={formulaire.telephone}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="champ">
-                <label className="champ-label" htmlFor="pays">
-                  Pays
-                </label>
-                <select id="pays" name="pays" value={formulaire.pays} onChange={handleChange}>
-                  <option value="">— Choisir —</option>
-                  {PAYS.map((pays) => (
-                    <option key={pays} value={pays}>
-                      {pays}
-                    </option>
-                  ))}
-                </select>
+              <div className="champ-aide">
+                Nom, email et mot de passe : c'est tout ce dont nous avons besoin.
               </div>
             </div>
 

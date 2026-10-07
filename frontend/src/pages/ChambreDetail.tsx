@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { apiChambres } from '../api/client';
 import { EntetePage } from '../components/Layout';
@@ -13,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { useFetch } from '../hooks/useFetch';
 import type { Chambre } from '../types';
 import { formaterDate, formaterMontant } from '../utils/format';
-import { imageChambre } from '../utils/images';
+import { galerieChambre, imageChambre } from '../utils/images';
 
 /** Detail d'une chambre (route dynamique /chambres/:id) + historique */
 export function ChambreDetail() {
@@ -25,11 +26,16 @@ export function ChambreDetail() {
   const chambre = useFetch(() => apiChambres.detail(identifiant), [identifiant]);
   const donnees = chambre.donnees as Chambre | null;
 
+  const [photoActive, setPhotoActive] = useState(0);
+  const [zoom, setZoom] = useState(false);
+  const galerie = donnees ? galerieChambre(donnees) : [];
+  const photos = donnees ? [imageChambre(donnees), ...galerie] : [];
+
   return (
     <>
       {donnees ? (
         <div className="bande-hero" style={{ height: 240 }}>
-          <img src={imageChambre(donnees.type)} alt={`Chambre ${donnees.numero}`} />
+          <img src={imageChambre(donnees)} alt={`Chambre ${donnees.numero}`} />
           <div className="bande-hero-voile">
             <div className="bande-hero-titre">Chambre {donnees.numero}</div>
             <div className="bande-hero-texte">
@@ -42,7 +48,16 @@ export function ChambreDetail() {
       <EntetePage
         titre={donnees ? `Chambre ${donnees.numero}` : 'Chambre'}
         sousTitre="Fiche detaillee et historique des occupations"
-        actions={<Link to="/chambres" className="bouton bouton-secondaire">← Retour au catalogue</Link>}
+        actions={
+          <>
+            <Link to="/chambres" className="bouton bouton-secondaire">← Retour</Link>
+            {donnees ? (
+              <Link to={`/reserver?chambreId=${donnees.id}`} className="bouton bouton-accent">
+                Reserver
+              </Link>
+            ) : null}
+          </>
+        }
       />
 
       <div className="page">
@@ -82,6 +97,41 @@ export function ChambreDetail() {
                 </p>
               ) : null}
             </div>
+
+            {photos.length > 1 ? (
+              <div className="carte">
+                <h2 className="carte-titre">La chambre en images</h2>
+                <p className="carte-description">
+                  Differents espaces de la chambre {donnees.numero}. Cliquez pour agrandir.
+                </p>
+                <div className="galerie">
+                  <button
+                    type="button"
+                    className="galerie-principale"
+                    onClick={() => setZoom(true)}
+                    aria-label="Agrandir la photo"
+                  >
+                    <img
+                      src={photos[photoActive]}
+                      alt={`Vue ${photoActive + 1} de la chambre ${donnees.numero}`}
+                    />
+                  </button>
+                  <div className="galerie-vignettes">
+                    {photos.map((src, index) => (
+                      <button
+                        key={`${src}-${index}`}
+                        type="button"
+                        className={`galerie-vignette ${index === photoActive ? 'active' : ''}`}
+                        onClick={() => setPhotoActive(index)}
+                        aria-label={`Voir la photo ${index + 1}`}
+                      >
+                        <img src={src} alt="" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div className="carte">
               <h2 className="carte-titre">Historique des reservations</h2>
@@ -144,6 +194,17 @@ export function ChambreDetail() {
           </>
         ) : null}
       </div>
+
+      {zoom && photos[photoActive] ? (
+        <div className="voile" onClick={() => setZoom(false)}>
+          <img
+            src={photos[photoActive]}
+            alt=""
+            className="galerie-zoom"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      ) : null}
     </>
   );
 }

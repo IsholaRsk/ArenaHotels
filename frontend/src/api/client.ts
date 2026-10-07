@@ -183,7 +183,7 @@ export const apiReservations = {
     requete<LignePlanning[]>('/reservations/planning', { params: { mois } }),
   creer: (donnees: {
     chambreId: number;
-    clientId: number;
+    clientId?: number;
     dateArrivee: string;
     dateDepart: string;
     nombrePersonnes: number;

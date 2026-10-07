@@ -87,6 +87,29 @@ export class ClientsService {
     return this.repository.save(this.repository.create({ ...dto, email }));
   }
 
+  /**
+   * Retrouve la fiche client correspondant a un compte (par email),
+   * ou la cree a la volee. Utilise lorsqu'un client finalise une reservation :
+   * il reserve pour lui-meme sans avoir a ressaisir ses informations.
+   */
+  async trouverOuCreerParEmail(
+    email: string,
+    nomComplet: string,
+  ): Promise<Client> {
+    const emailNormalise = email.trim().toLowerCase();
+    const existant = await this.repository.findOne({
+      where: { email: emailNormalise },
+    });
+    if (existant) return existant;
+
+    const parties = (nomComplet ?? '').trim().split(/\s+/).filter(Boolean);
+    const prenom = parties[0] ?? 'Client';
+    const nom = parties.slice(1).join(' ') || prenom;
+    return this.repository.save(
+      this.repository.create({ nom, prenom, email: emailNormalise }),
+    );
+  }
+
   async update(id: number, dto: UpdateClientDto): Promise<Client> {
     const client = await this.findOne(id);
     if (dto.email) {

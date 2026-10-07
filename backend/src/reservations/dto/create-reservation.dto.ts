@@ -25,8 +25,8 @@ export class CreateReservationDto {
   @Type(() => Number)
   @IsInt({ message: 'clientId doit etre un entier' })
   @Min(1)
-  @IsNotEmpty({ message: 'Le client est obligatoire' })
-  clientId: number;
+  @IsOptional()
+  clientId?: number;
 
   @Matches(DATE_ISO_REGEX, {
     message: "La date d'arrivee doit etre au format YYYY-MM-DD",

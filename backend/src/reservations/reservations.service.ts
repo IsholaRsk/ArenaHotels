@@ -9,10 +9,12 @@ import { In, LessThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { ChambresService } from '../chambres/chambres.service';
 import { ClientsService } from '../clients/clients.service';
 import {
+  Role,
   STATUTS_BLOQUANTS,
   StatutChambre,
   StatutReservation,
 } from '../common/enums';
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import {
   addDays,
   joursDuMois,
@@ -106,9 +108,12 @@ export class ReservationsService {
     return reservation;
   }
 
-  async create(dto: CreateReservationDto): Promise<Reservation> {
+  async create(
+    dto: CreateReservationDto,
+    user?: JwtPayload,
+  ): Promise<Reservation> {
     const chambre = await this.chambresService.findOne(dto.chambreId);
-    const client = await this.clientsService.findOne(dto.clientId);
+    const client = await this.resoudreClient(dto, user);
     this.verifierReglesMetier(dto, chambre);
     await this.verifierDisponibilite(
       chambre.id,
@@ -131,6 +136,24 @@ export class ReservationsService {
     const enregistree = await this.repository.save(reservation);
     await this.chambresService.synchroniserStatuts();
     return this.avecNuits(await this.findOne(enregistree.id));
+  }
+
+  /**
+   * Determine la fiche client a laquelle rattacher la reservation.
+   * Un CLIENT reserve pour lui-meme : on retrouve (ou on cree) sa fiche
+   * a partir de l'email de son compte. Le personnel doit fournir un clientId.
+   */
+  private async resoudreClient(
+    dto: CreateReservationDto,
+    user?: JwtPayload,
+  ): Promise<Client> {
+    if (user?.role === Role.CLIENT) {
+      return this.clientsService.trouverOuCreerParEmail(user.email, user.nom);
+    }
+    if (!dto.clientId) {
+      throw new BadRequestException('Le client est obligatoire');
+    }
+    return this.clientsService.findOne(dto.clientId);
   }
 
   async update(id: number, dto: UpdateReservationDto): Promise<Reservation> {

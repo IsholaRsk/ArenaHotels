@@ -18,10 +18,6 @@ const FORMULAIRE_VIDE = {
   prenom: '',
   email: '',
   telephone: '',
-  ville: '',
-  pays: 'Benin',
-  adresse: '',
-  notes: '',
 };
 
 /** Gestion des fiches clients */
@@ -60,10 +56,6 @@ export function Clients() {
       prenom: client.prenom,
       email: client.email,
       telephone: client.telephone ?? '',
-      ville: client.ville ?? '',
-      pays: client.pays ?? '',
-      adresse: client.adresse ?? '',
-      notes: client.notes ?? '',
     });
     setErreur(null);
     setModaleOuverte(true);
@@ -337,44 +329,8 @@ export function Clients() {
             </div>
           </div>
 
-          <div className="grille-champs">
-            <div className="champ">
-              <label className="champ-label" htmlFor="ville">
-                Ville
-              </label>
-              <input id="ville" name="ville" value={formulaire.ville} onChange={handleChange} />
-            </div>
-            <div className="champ">
-              <label className="champ-label" htmlFor="pays">
-                Pays
-              </label>
-              <input id="pays" name="pays" value={formulaire.pays} onChange={handleChange} />
-            </div>
-          </div>
-
-          <div className="champ">
-            <label className="champ-label" htmlFor="adresse">
-              Adresse
-            </label>
-            <input
-              id="adresse"
-              name="adresse"
-              value={formulaire.adresse}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="champ">
-            <label className="champ-label" htmlFor="notes-client">
-              Notes
-            </label>
-            <textarea
-              id="notes-client"
-              name="notes"
-              value={formulaire.notes}
-              onChange={handleChange}
-              placeholder="Preferences, fidelite, remarques..."
-            />
+          <div className="champ-aide">
+            Seuls le nom, le prenom et l'email sont obligatoires. Le telephone reste facultatif.
           </div>
         </form>
       </Modale>

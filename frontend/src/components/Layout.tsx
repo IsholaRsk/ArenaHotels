@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { apiAuth } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import type { Role } from '../types';
@@ -13,10 +13,11 @@ const NAVIGATION: ElementNav[] = [
   { vers: '/', libelle: 'Accueil' },
   { vers: '/chambres', libelle: 'Chambres' },
   { vers: '/disponibilites', libelle: 'Disponibilites' },
-  { vers: '/planning', libelle: 'Planning' },
-  { vers: '/reservations', libelle: 'Reservations' },
-  { vers: '/clients', libelle: 'Clients' },
-  { vers: '/profil', libelle: 'Profil' },
+  // Reserve au personnel : invisible pour un compte client
+  { vers: '/planning', libelle: 'Planning', roles: ['ADMIN', 'RECEPTIONNISTE'] },
+  { vers: '/reservations', libelle: 'Reservations', roles: ['ADMIN', 'RECEPTIONNISTE'] },
+  { vers: '/clients', libelle: 'Clients', roles: ['ADMIN', 'RECEPTIONNISTE'] },
+  { vers: '/profil', libelle: 'Profil', roles: ['ADMIN', 'RECEPTIONNISTE', 'CLIENT'] },
 ];
 
 const LIBELLES_ROLE: Record<Role, string> = {
@@ -76,24 +77,37 @@ export function Layout() {
         </nav>
 
         <div className="barre-haute-compte">
-          <div style={{ textAlign: 'right' }}>
-            <div className="barre-haute-compte-nom">{utilisateur?.nom}</div>
-            <div className="barre-haute-compte-role">
-              {utilisateur ? LIBELLES_ROLE[utilisateur.role] : ''}
+          {utilisateur ? (
+            <>
+              <div style={{ textAlign: 'right' }}>
+                <div className="barre-haute-compte-nom">{utilisateur.nom}</div>
+                <div className="barre-haute-compte-role">
+                  {LIBELLES_ROLE[utilisateur.role]}
+                </div>
+              </div>
+              <div className="avatar" title={utilisateur.nom}>
+                {initiales(utilisateur.nom)}
+              </div>
+              <button
+                type="button"
+                className="bouton-icone"
+                onClick={quitter}
+                title="Se deconnecter"
+                aria-label="Se deconnecter"
+              >
+                ⎋
+              </button>
+            </>
+          ) : (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Link to="/connexion" className="bouton bouton-secondaire bouton-mini">
+                Se connecter
+              </Link>
+              <Link to="/inscription" className="bouton bouton-mini">
+                S'inscrire
+              </Link>
             </div>
-          </div>
-          <div className="avatar" title={utilisateur?.nom ?? ''}>
-            {initiales(utilisateur?.nom ?? '?')}
-          </div>
-          <button
-            type="button"
-            className="bouton-icone"
-            onClick={quitter}
-            title="Se deconnecter"
-            aria-label="Se deconnecter"
-          >
-            ⎋
-          </button>
+          )}
         </div>
       </header>
 

@@ -15,7 +15,13 @@ export function RouteProtegee() {
     return <Chargement texte="Verification de la session..." />;
   }
   if (!connecte) {
-    return <Navigate to="/connexion" replace state={{ depuis: emplacement.pathname }} />;
+    return (
+      <Navigate
+        to="/connexion"
+        replace
+        state={{ depuis: emplacement.pathname + emplacement.search }}
+      />
+    );
   }
   return <Outlet />;
 }

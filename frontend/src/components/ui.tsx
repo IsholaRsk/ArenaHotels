@@ -183,7 +183,7 @@ export function CarteChambre({
   return (
     <article className="carte-chambre">
       <div className="carte-chambre-media">
-        <img src={imageChambre(chambre.type)} alt={`Chambre ${chambre.numero}`} loading="lazy" />
+        <img src={imageChambre(chambre)} alt={`Chambre ${chambre.numero}`} loading="lazy" />
         {disponible === true ? <span className="badge badge-libre">Disponible</span> : null}
         {disponible === false ? <BadgeChambre statut={chambre.statut} /> : null}
       </div>

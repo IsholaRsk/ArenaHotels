@@ -70,7 +70,13 @@ export function Disponibilites() {
       depart: rechercheActive.depart,
       personnes: rechercheActive.personnes,
     });
-    naviguer(`/reservations?${params.toString()}`);
+    // Le personnel utilise l'outil complet ; un client (ou un visiteur qui devra
+    // se connecter) passe par la page de finalisation.
+    naviguer(
+      peutReserver
+        ? `/reservations?${params.toString()}`
+        : `/reserver?${params.toString()}`,
+    );
   };
 
   const meta = resultat.meta as
@@ -171,7 +177,7 @@ export function Disponibilites() {
                     prix={chambre.prixSejour}
                     prixDetail={`pour ${chambre.nuits} nuit(s)`}
                     action={
-                      chambre.disponible && peutReserver ? (
+                      chambre.disponible ? (
                         <button
                           type="button"
                           className="bouton bouton-accent bouton-mini"
@@ -179,8 +185,6 @@ export function Disponibilites() {
                         >
                           Reserver
                         </button>
-                      ) : chambre.disponible ? (
-                        <span className="cellule-secondaire">via reception</span>
                       ) : null
                     }
                   />
