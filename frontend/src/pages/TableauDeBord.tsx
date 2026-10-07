@@ -84,12 +84,6 @@ export function TableauDeBord() {
               <p className="carte-description">
                 L'hotel vous place a quelques minutes des plus beaux sites de la capitale.
               </p>
-              <ul className="localisation-liste">
-                <li>Musee du Louvre — 5 min a pied</li>
-                <li>Jardin des Tuileries — 8 min a pied</li>
-                <li>Seine & Pont Neuf — 6 min a pied</li>
-                <li>Metro Palais-Royal (lignes 1 & 7) — 4 min a pied</li>
-              </ul>
             </div>
             <img src={IMAGE_LOUVRE} alt="Le Louvre, a quelques minutes de l'hotel" />
           </div>

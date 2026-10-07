@@ -1256,6 +1256,25 @@ a.carte-chambre-media {
   flex-wrap: wrap;
   margin-top: 22px;
 }
+/* Boutons lisibles sur le visuel sombre du hero */
+.hero-actions .bouton {
+  background: #fdfdfc;
+  border-color: #fdfdfc;
+  color: var(--encre);
+  font-weight: 600;
+}
+.hero-actions .bouton:hover:not(:disabled) {
+  background: #fff;
+}
+.hero-actions .bouton-secondaire {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+.hero-actions .bouton-secondaire:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.28);
+}
 
 .grille-services {
   display: grid;
