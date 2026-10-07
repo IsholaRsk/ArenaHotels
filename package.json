@@ -1,0 +1,24 @@
+{
+  "name": "arena-hotels",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ArenaHotels - Systeme de reservation d'hotels (React + NestJS + TypeORM) - Projet Final 2",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "install:all": "npm install",
+    "dev": "concurrently -n API,WEB -c yellow,cyan \"npm run start:dev --workspace backend\" \"npm run dev --workspace frontend\"",
+    "start:dev": "npm run start:dev --workspace backend",
+    "dev:web": "npm run dev --workspace frontend",
+    "build": "npm run build --workspace backend && npm run build --workspace frontend",
+    "start": "npm run start --workspace backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
