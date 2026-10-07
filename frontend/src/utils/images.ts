@@ -13,9 +13,21 @@ const PAR_TYPE: Record<TypeChambre, string> = {
 
 /**
  * Photo principale unique par chambre, indexee par numero.
- * Chaque chambre possede sa propre image (tachees dans /images/chambres/).
+ * Chaque chambre possede sa propre image (dans /images/chambres/).
+ * Les chambres non listees ici retombent sur la photo de leur type.
  */
-const PRINCIPALE_PAR_NUMERO: Record<string, string> = {};
+const PRINCIPALE_PAR_NUMERO: Record<string, string> = {
+  '101': `${BASE}/chambres/101.jpg`,
+  '102': `${BASE}/chambres/102.jpg`,
+  '103': `${BASE}/chambres/103.jpg`,
+  '104': `${BASE}/chambres/104.jpg`,
+  '201': `${BASE}/chambres/201.jpg`,
+  '202': `${BASE}/chambres/202.jpg`,
+  '203': `${BASE}/chambres/203.jpg`,
+  '204': `${BASE}/chambres/204.jpg`,
+  '301': `${BASE}/chambres/301.jpg`,
+  '302': `${BASE}/chambres/302.jpg`,
+};
 
 /**
  * Mini galerie par chambre : d'autres pieces / angles de la meme chambre
