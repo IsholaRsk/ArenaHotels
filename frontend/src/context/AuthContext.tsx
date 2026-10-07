@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { apiAuth, definirGestionnaireExpiration, gestionToken } from '../api/client';
 import type { Role, Utilisateur } from '../types';
+import { roleAPermissions, type Permission } from '../utils/permissions';
 
 /**
  * Etat global d'authentification : Context API + useReducer
@@ -63,6 +64,7 @@ interface ContexteAuth {
   erreur: string | null;
   connecte: boolean;
   aLeRole: (...roles: Role[]) => boolean;
+  aLaPermission: (...permissions: Permission[]) => boolean;
   connexion: (email: string, motDePasse: string) => Promise<void>;
   inscription: (donnees: {
     nom: string;
@@ -166,6 +168,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       connecte: Boolean(etat.utilisateur),
       aLeRole: (...roles: Role[]) =>
         Boolean(etat.utilisateur && roles.includes(etat.utilisateur.role)),
+      aLaPermission: (...permissions: Permission[]) =>
+        roleAPermissions(etat.utilisateur?.role, permissions),
       connexion,
       inscription,
       deconnexion,

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -65,7 +66,7 @@ export class ReservationsService {
 
   // ------------------------------------------------------------------ CRUD
 
-  async findAll(query: FiltreReservationsQueryDto) {
+  async findAll(query: FiltreReservationsQueryDto, user?: JwtPayload) {
     const { page = 1, limit = 10, statut, chambreId, clientId, mois } = query;
     const qb = this.repository
       .createQueryBuilder('r')
@@ -74,9 +75,14 @@ export class ReservationsService {
       .orderBy('r.dateArrivee', 'DESC')
       .addOrderBy('r.id', 'DESC');
 
+    // Portee : un CLIENT ne voit que SES reservations (filtre par email du compte)
+    if (user?.role === Role.CLIENT) {
+      qb.andWhere('client.email = :emailClient', { emailClient: user.email });
+    } else if (clientId) {
+      qb.andWhere('client.id = :clientId', { clientId });
+    }
     if (statut) qb.andWhere('r.statut = :statut', { statut });
     if (chambreId) qb.andWhere('chambre.id = :chambreId', { chambreId });
-    if (clientId) qb.andWhere('client.id = :clientId', { clientId });
     if (mois) {
       const debut = `${mois}-01`;
       const fin = addDays(`${mois}-01`, joursDuMois(mois).length);
@@ -97,7 +103,7 @@ export class ReservationsService {
     };
   }
 
-  async findOne(id: number): Promise<Reservation> {
+  async findOne(id: number, user?: JwtPayload): Promise<Reservation> {
     const reservation = await this.repository.findOne({
       where: { id },
       relations: { chambre: true, client: true },
@@ -105,7 +111,20 @@ export class ReservationsService {
     if (!reservation) {
       throw new NotFoundException(`Reservation #${id} introuvable`);
     }
+    this.verifierPortee(reservation, user);
     return reservation;
+  }
+
+  /** Un CLIENT n'accede qu'a ses propres reservations (portee par email du compte). */
+  private verifierPortee(
+    reservation: Reservation,
+    user?: JwtPayload,
+  ): void {
+    if (user?.role === Role.CLIENT && reservation.client?.email !== user.email) {
+      throw new ForbiddenException(
+        'Acces refuse : cette reservation ne vous appartient pas.',
+      );
+    }
   }
 
   async create(
@@ -156,8 +175,22 @@ export class ReservationsService {
     return this.clientsService.findOne(dto.clientId);
   }
 
-  async update(id: number, dto: UpdateReservationDto): Promise<Reservation> {
-    const reservation = await this.findOne(id);
+  async update(
+    id: number,
+    dto: UpdateReservationDto,
+    user?: JwtPayload,
+  ): Promise<Reservation> {
+    const reservation = await this.findOne(id, user);
+
+    // Un CLIENT ne peut ni changer de client, ni de chambre, ni de statut ici
+    // (il annule via PATCH /statut). On neutralise ces champs pour lui.
+    const estClient = user?.role === Role.CLIENT;
+    if (estClient) {
+      delete dto.clientId;
+      delete dto.chambreId;
+      delete dto.statut;
+    }
+
     const chambre =
       dto.chambreId && dto.chambreId !== reservation.chambre.id
         ? await this.chambresService.findOne(dto.chambreId)
@@ -203,9 +236,21 @@ export class ReservationsService {
     return this.avecNuits(await this.findOne(enregistree.id));
   }
 
-  /** PATCH /reservations/:id/statut — confirme, annule ou cloture un sejour */
-  async updateStatut(id: number, statut: StatutReservation) {
-    const reservation = await this.findOne(id);
+  /** PATCH /reservations/:id/statut — confirme, annule, check-in/out ou cloture */
+  async updateStatut(
+    id: number,
+    statut: StatutReservation,
+    user?: JwtPayload,
+  ) {
+    const reservation = await this.findOne(id, user);
+
+    // Un CLIENT ne peut que ANNULER sa propre reservation (pas de check-in/out).
+    if (user?.role === Role.CLIENT && statut !== StatutReservation.ANNULEE) {
+      throw new ForbiddenException(
+        'Un client peut uniquement annuler sa reservation.',
+      );
+    }
+
     this.verifierTransition(reservation.statut, statut);
     reservation.statut = statut;
     const enregistree = await this.repository.save(reservation);

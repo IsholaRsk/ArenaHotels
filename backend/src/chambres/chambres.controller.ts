@@ -9,11 +9,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums';
+import { Permissions } from '../common/decorators/permissions.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Permission, Role } from '../common/enums';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { ChambresService } from './chambres.service';
 import {
   CreateChambreDto,
@@ -49,29 +52,36 @@ export class ChambresController {
     return this.service.findOneAvecReservations(id);
   }
 
-  /** POST /api/chambres (ADMIN, RECEPTIONNISTE) */
+  /** POST /api/chambres — creation (ROOM_CREATE : ADMIN) */
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.RECEPTIONNISTE)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+  @Permissions(Permission.ROOM_CREATE)
   create(@Body() dto: CreateChambreDto) {
     return this.service.create(dto);
   }
 
-  /** PATCH /api/chambres/:id (ADMIN, RECEPTIONNISTE) */
+  /**
+   * PATCH /api/chambres/:id — mise a jour (ROOM_UPDATE : ADMIN, RECEPTIONNISTE).
+   * Les tarifs (prixParNuit) sont reserves a l'ADMIN ("gerer tarifs").
+   */
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.RECEPTIONNISTE)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+  @Permissions(Permission.ROOM_UPDATE)
   update(
     @Param('id', ParseIdPipe) id: number,
     @Body() dto: UpdateChambreDto,
+    @CurrentUser() user: JwtPayload,
   ) {
+    if (user?.role !== Role.ADMIN) {
+      delete dto.prixParNuit;
+    }
     return this.service.update(id, dto);
   }
 
-  /** DELETE /api/chambres/:id (ADMIN) */
+  /** DELETE /api/chambres/:id — suppression (ROOM_DELETE : ADMIN) */
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+  @Permissions(Permission.ROOM_DELETE)
   remove(@Param('id', ParseIdPipe) id: number) {
     return this.service.remove(id);
   }

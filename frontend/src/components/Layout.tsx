@@ -13,6 +13,8 @@ const NAVIGATION: ElementNav[] = [
   { vers: '/', libelle: 'Accueil' },
   { vers: '/chambres', libelle: 'Chambres' },
   { vers: '/disponibilites', libelle: 'Disponibilites' },
+  // Espace client : ses propres reservations
+  { vers: '/mes-reservations', libelle: 'Mes reservations', roles: ['CLIENT'] },
   // Reserve au personnel : invisible pour un compte client
   { vers: '/planning', libelle: 'Planning', roles: ['ADMIN', 'RECEPTIONNISTE'] },
   { vers: '/reservations', libelle: 'Reservations', roles: ['ADMIN', 'RECEPTIONNISTE'] },

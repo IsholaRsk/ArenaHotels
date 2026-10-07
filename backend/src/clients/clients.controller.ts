@@ -10,10 +10,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums';
+import { Permissions } from '../common/decorators/permissions.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Permission, Role } from '../common/enums';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
 import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { ClientsService } from './clients.service';
 import {
   CreateClientDto,
@@ -21,24 +25,27 @@ import {
   UpdateClientDto,
 } from './dto/create-client.dto';
 
-/** Controleur clients : toutes les routes exigent un JWT valide. */
+/** Controleur clients : JWT obligatoire + autorisation par permission. */
 @Controller('clients')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 export class ClientsController {
   constructor(private readonly service: ClientsService) {}
 
-  /** GET /api/clients?page=1&limit=10&recherche= */
+  /** GET /api/clients?page=1&limit=10&recherche= (personnel) */
   @Get()
   @Roles(Role.ADMIN, Role.RECEPTIONNISTE)
   findAll(@Query() query: FiltreClientsQueryDto) {
     return this.service.findAll(query);
   }
 
-  /** GET /api/clients/:id — fiche + historique des sejours */
+  /** GET /api/clients/:id — fiche + historique (un CLIENT uniquement la sienne) */
   @Get(':id')
-  @Roles(Role.ADMIN, Role.RECEPTIONNISTE)
-  findOne(@Param('id', ParseIdPipe) id: number) {
-    return this.service.findOneAvecHistorique(id);
+  @Permissions(Permission.CLIENT_READ)
+  findOne(
+    @Param('id', ParseIdPipe) id: number,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.service.findOneAvecHistorique(id, user);
   }
 
   /** POST /api/clients (ADMIN, RECEPTIONNISTE) */
@@ -48,14 +55,15 @@ export class ClientsController {
     return this.service.create(dto);
   }
 
-  /** PATCH /api/clients/:id (ADMIN, RECEPTIONNISTE) */
+  /** PATCH /api/clients/:id — un CLIENT ne modifie que sa propre fiche */
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.RECEPTIONNISTE)
+  @Permissions(Permission.CLIENT_UPDATE)
   update(
     @Param('id', ParseIdPipe) id: number,
     @Body() dto: UpdateClientDto,
+    @CurrentUser() user: JwtPayload,
   ) {
-    return this.service.update(id, dto);
+    return this.service.update(id, dto, user);
   }
 
   /** DELETE /api/clients/:id (ADMIN) */

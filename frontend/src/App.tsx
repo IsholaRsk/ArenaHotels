@@ -11,6 +11,7 @@ import { Disponibilites } from './pages/Disponibilites';
 import { Inscription } from './pages/Inscription';
 import { Introuvable } from './pages/Introuvable';
 import { Planning } from './pages/Planning';
+import { MesReservations } from './pages/MesReservations';
 import { Profil } from './pages/Profil';
 import { Reservations } from './pages/Reservations';
 import { Reserver } from './pages/Reserver';
@@ -55,6 +56,7 @@ export default function App() {
         {/* Connexion obligatoire */}
         <Route element={<RouteProtegee />}>
           <Route path="reserver" element={<Reserver />} />
+          <Route path="mes-reservations" element={<MesReservations />} />
           <Route path="profil" element={<Profil />} />
 
           {/* Reserve au personnel de l'hotel */}

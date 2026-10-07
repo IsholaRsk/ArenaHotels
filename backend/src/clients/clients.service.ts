@@ -1,12 +1,14 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
-import { StatutReservation } from '../common/enums';
+import { Role, StatutReservation } from '../common/enums';
 import { todayIso } from '../common/utils/date.utils';
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { Client } from '../entities/client.entity';
 import { Reservation } from '../entities/reservation.entity';
 import {
@@ -56,9 +58,19 @@ export class ClientsService {
     return client;
   }
 
+  /** Un CLIENT n'accede qu'a sa propre fiche (portee par email du compte). */
+  private verifierPortee(client: Client, user?: JwtPayload): void {
+    if (user?.role === Role.CLIENT && client.email !== user.email) {
+      throw new ForbiddenException(
+        'Acces refuse : cette fiche client ne vous appartient pas.',
+      );
+    }
+  }
+
   /** Fiche client complete : historique des reservations + montant total depense */
-  async findOneAvecHistorique(id: number) {
+  async findOneAvecHistorique(id: number, user?: JwtPayload) {
     const client = await this.findOne(id);
+    this.verifierPortee(client, user);
     const reservations = await this.reservations.find({
       where: { client: { id } },
       order: { dateArrivee: 'DESC' },
@@ -110,8 +122,17 @@ export class ClientsService {
     );
   }
 
-  async update(id: number, dto: UpdateClientDto): Promise<Client> {
+  async update(
+    id: number,
+    dto: UpdateClientDto,
+    user?: JwtPayload,
+  ): Promise<Client> {
     const client = await this.findOne(id);
+    this.verifierPortee(client, user);
+    // Un CLIENT ne peut pas modifier son email (cle de correspondance du compte)
+    if (user?.role === Role.CLIENT) {
+      delete dto.email;
+    }
     if (dto.email) {
       const email = dto.email.trim().toLowerCase();
       if (email !== client.email) {
