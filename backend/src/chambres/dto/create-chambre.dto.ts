@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import {
   IsEnum,
@@ -59,7 +58,52 @@ export class CreateChambreDto {
   statut?: StatutChambre;
 }
 
-export class UpdateChambreDto extends PartialType(CreateChambreDto) {}
+/**
+ * Mise a jour partielle d'une chambre : memes regles de validation que la
+ * creation, mais chaque champ est optionnel.
+ * (Ecrit explicitement plutot qu'avec PartialType : @nestjs/mapped-types est
+ * publie en ESM pur, incompatible avec le require() CommonJS du runtime Vercel.)
+ */
+export class UpdateChambreDto {
+  @IsOptional()
+  @IsString()
+  @Length(1, 20)
+  @Matches(/^[A-Za-z0-9-]+$/)
+  numero?: string;
+
+  @IsOptional()
+  @IsEnum(TypeChambre)
+  type?: TypeChambre;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 0 })
+  @Min(1000)
+  prixParNuit?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  capacite?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(50)
+  etage?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description?: string;
+
+  @IsOptional()
+  @IsEnum(StatutChambre)
+  statut?: StatutChambre;
+}
 
 /** Filtres de la liste des chambres (GET /chambres) */
 export class FiltreChambresQueryDto extends PaginationQueryDto {

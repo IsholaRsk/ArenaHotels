@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
 import {
   IsBoolean,
   IsEmail,
@@ -42,4 +41,32 @@ export class CreateUtilisateurDto {
 }
 
 /** Mise a jour partielle : tous les champs deviennent optionnels */
-export class UpdateUtilisateurDto extends PartialType(CreateUtilisateurDto) {}
+/** Mise a jour partielle d'un compte utilisateur (tous les champs optionnels) */
+export class UpdateUtilisateurDto {
+  @IsOptional()
+  @IsString()
+  @Length(3, 120)
+  nom?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  motDePasse?: string;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
+
+  @IsOptional()
+  @IsString()
+  @Length(7, 30)
+  telephone?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  actif?: boolean;
+}

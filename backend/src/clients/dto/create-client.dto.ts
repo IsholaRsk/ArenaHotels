@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
 import {
   IsEmail,
   IsNotEmpty,
@@ -51,7 +50,47 @@ export class CreateClientDto {
   notes?: string;
 }
 
-export class UpdateClientDto extends PartialType(CreateClientDto) {}
+/** Mise a jour partielle d'une fiche client (tous les champs optionnels) */
+export class UpdateClientDto {
+  @IsOptional()
+  @IsString()
+  @Length(2, 80)
+  nom?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(2, 80)
+  prenom?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(7, 30)
+  telephone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  adresse?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  ville?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  pays?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  notes?: string;
+}
 
 /** Filtres de la liste des clients (GET /clients) */
 export class FiltreClientsQueryDto extends PaginationQueryDto {

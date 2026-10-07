@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import {
   IsEnum,
@@ -59,7 +58,44 @@ export class CreateReservationDto {
   notes?: string;
 }
 
-export class UpdateReservationDto extends PartialType(CreateReservationDto) {}
+/** Mise a jour partielle d'une reservation (tous les champs optionnels) */
+export class UpdateReservationDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  chambreId?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  clientId?: number;
+
+  @IsOptional()
+  @Matches(DATE_ISO_REGEX)
+  dateArrivee?: string;
+
+  @IsOptional()
+  @Matches(DATE_ISO_REGEX)
+  dateDepart?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  nombrePersonnes?: number;
+
+  @IsOptional()
+  @IsEnum(StatutReservation)
+  statut?: StatutReservation;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  notes?: string;
+}
 
 /** Changement de statut d'une reservation (PATCH /reservations/:id/statut) */
 export class UpdateStatutReservationDto {

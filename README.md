@@ -14,6 +14,11 @@ Application complète de gestion hôtelière : catalogue de **chambres**, fiches
 
 ## 1. Démonstration
 
+**Application en ligne (Vercel) :** https://arena-hotels.vercel.app
+
+- Interface React : `https://arena-hotels.vercel.app/`
+- API REST : `https://arena-hotels.vercel.app/api`
+
 Comptes de démonstration créés automatiquement au démarrage :
 
 | Rôle             | Email                       | Mot de passe     | Droits                                            |
@@ -227,6 +232,31 @@ JWT_SECRET=<cle-aleatoire>
 ```
 
 Aucune modification de code n'est nécessaire.
+
+### Trois points techniques propres à Vercel
+
+Ces contraintes ont été rencontrées au déploiement et sont traitées dans le code :
+
+1. **`tsc` avant le déploiement.** Vercel empaquette les fonctions avec esbuild, qui ne
+   génère pas `emitDecoratorMetadata`. Sans ces métadonnées, l'injection de dépendances
+   de NestJS échoue. L'API est donc compilée par `tsc` dans `buildCommand`, et
+   `api/index.js` ne fait que réexporter `backend/dist/serverless.js`.
+
+2. **`require` littéral.** Vercel analyse statiquement le point d'entrée
+   (node-file-trace) pour décider quels modules inclure. Un chemin calculé
+   (`require(chemins[i])`) n'est pas suivi : la fonction démarre alors avec
+   `Cannot find module '@nestjs/common'`. Le require de `api/index.js`, celui de
+   `sql.js` et le `require.resolve` du binaire WASM sont donc écrits en dur.
+
+3. **Pas de dépendance ESM-only.** Le runtime Node de Vercel refuse
+   `require()` d'un module ESM. `@nestjs/mapped-types` (publié en `"type": "module"`)
+   a été retiré : les DTO de mise à jour (`UpdateChambreDto`, `UpdateClientDto`,
+   `UpdateReservationDto`, `UpdateUtilisateurDto`) sont écrits explicitement avec les
+   mêmes décorateurs de validation.
+
+Le pilote `sql.js` est chargé par l'application et passé à TypeORM via l'option
+`driver`, avec le binaire WASM lu en mémoire (`sqlJsConfig.wasmBinary`) : TypeORM charge
+ce pilote dynamiquement, ce que l'analyse statique de Vercel ne peut pas suivre.
 
 ---
 

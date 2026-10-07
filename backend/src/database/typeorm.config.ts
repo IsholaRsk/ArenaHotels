@@ -21,35 +21,38 @@ import { Utilisateur } from '../entities/utilisateur.entity';
  */
 export const ENTITES = [Utilisateur, Chambre, Client, Reservation];
 
-/** Emplacements possibles du binaire WASM de sql.js */
-const CHEMINS_WASM = [
-  'sql.js/dist/sql-wasm.wasm',
-  'node_modules/sql.js/dist/sql-wasm.wasm',
-  '../node_modules/sql.js/dist/sql-wasm.wasm',
-  '../../node_modules/sql.js/dist/sql-wasm.wasm',
-];
-
 /**
- * Charge le binaire WASM en memoire.
- * Passe en "wasmBinary", sql.js n'a plus besoin de retrouver le fichier sur le
- * disque : indispensable quand l'application est empaquetee (serverless).
+ * Charge le pilote sql.js et son binaire WASM.
+ *
+ * Les deux require sont volontairement LITTERAUX : Vercel analyse
+ * statiquement les fichiers (node-file-trace) pour savoir quoi empaqueter
+ * dans la fonction serverless. TypeORM charge sql.js dynamiquement, ce que
+ * l'analyse ne peut pas suivre : on lui fournit donc le pilote deja charge
+ * via l'option "driver".
  */
-function chargerBinaireWasm(): Buffer | undefined {
-  for (const chemin of CHEMINS_WASM) {
+function chargerSqlJs(): { pilote?: unknown; wasmBinary?: Buffer } {
+  let pilote: unknown;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    pilote = require('sql.js');
+  } catch {
+    return {};
+  }
+
+  let wasmBinary: Buffer | undefined;
+  try {
+    wasmBinary = readFileSync(require.resolve('sql.js/dist/sql-wasm.wasm'));
+  } catch {
     try {
-      return readFileSync(require.resolve(chemin));
+      wasmBinary = readFileSync(
+        resolve(process.cwd(), 'node_modules/sql.js/dist/sql-wasm.wasm'),
+      );
     } catch {
-      /* emplacement suivant */
+      wasmBinary = undefined;
     }
   }
-  for (const chemin of CHEMINS_WASM) {
-    try {
-      return readFileSync(resolve(process.cwd(), chemin));
-    } catch {
-      /* emplacement suivant */
-    }
-  }
-  return undefined;
+
+  return { pilote, wasmBinary };
 }
 
 export function buildTypeOrmOptions(): TypeOrmModuleOptions {
@@ -113,7 +116,7 @@ export function buildTypeOrmOptions(): TypeOrmModuleOptions {
     }
   }
 
-  const wasmBinary = chargerBinaireWasm();
+  const { pilote, wasmBinary } = chargerSqlJs();
   const sqlJsConfig = wasmBinary
     ? { wasmBinary, locateFile: () => 'sql-wasm.wasm' }
     : undefined;
@@ -121,6 +124,7 @@ export function buildTypeOrmOptions(): TypeOrmModuleOptions {
   return {
     ...commun,
     type: 'sqljs',
+    driver: pilote,
     location: persistant ? emplacement : undefined,
     autoSave: persistant,
     sqlJsConfig,

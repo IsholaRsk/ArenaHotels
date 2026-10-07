@@ -6,9 +6,8 @@
   "framework": null,
   "functions": {
     "api/index.js": {
-      "memory": 1024,
       "maxDuration": 30,
-      "includeFiles": "backend/dist/**"
+      "includeFiles": "{backend/dist/**,backend/package.json,node_modules/sql.js/dist/**}"
     }
   },
   "rewrites": [
