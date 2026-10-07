@@ -133,6 +133,7 @@ export function ChambreDetail() {
               </div>
             ) : null}
 
+            {peutGerer ? (
             <div className="carte">
               <h2 className="carte-titre">Historique des reservations</h2>
               <p className="carte-description">
@@ -191,6 +192,7 @@ export function ChambreDetail() {
                 </div>
               )}
             </div>
+            ) : null}
           </>
         ) : null}
       </div>

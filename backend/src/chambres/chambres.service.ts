@@ -7,10 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, LessThan, MoreThan, Repository } from 'typeorm';
 import {
+  Role,
   STATUTS_BLOQUANTS,
   StatutChambre,
   StatutReservation,
 } from '../common/enums';
+import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import {
   nombreDeNuits,
   todayIso,
@@ -78,8 +80,14 @@ export class ChambresService {
   }
 
   /** Chambre + ses reservations, triees par date d'arrivee */
-  async findOneAvecReservations(id: number) {
+  async findOneAvecReservations(id: number, user?: JwtPayload) {
     const chambre = await this.findOne(id);
+    // L'historique des reservations est reserve au personnel.
+    const estPersonnel =
+      user?.role === Role.ADMIN || user?.role === Role.RECEPTIONNISTE;
+    if (!estPersonnel) {
+      return { ...chambre, reservations: [] };
+    }
     const reservations = await this.reservations.find({
       where: { chambre: { id } },
       order: { dateArrivee: 'DESC' },

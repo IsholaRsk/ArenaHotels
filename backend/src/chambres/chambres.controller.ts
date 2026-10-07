@@ -15,6 +15,7 @@ import { Permission, Role } from '../common/enums';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard';
 import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { ChambresService } from './chambres.service';
@@ -46,10 +47,16 @@ export class ChambresController {
     return this.service.findAll(query);
   }
 
-  /** GET /api/chambres/:id — detail d'une chambre + ses reservations */
+  /** GET /api/chambres/:id — detail d'une chambre. L'historique des reservations
+   *  n'est renvoye qu'au personnel (ADMIN/RECEPTIONNISTE) ; un visiteur ou un
+   *  client ne voit que la fiche publique de la chambre. */
   @Get(':id')
-  findOne(@Param('id', ParseIdPipe) id: number) {
-    return this.service.findOneAvecReservations(id);
+  @UseGuards(OptionalJwtAuthGuard)
+  findOne(
+    @Param('id', ParseIdPipe) id: number,
+    @CurrentUser() user?: JwtPayload,
+  ) {
+    return this.service.findOneAvecReservations(id, user);
   }
 
   /** POST /api/chambres — creation (ROOM_CREATE : ADMIN) */
