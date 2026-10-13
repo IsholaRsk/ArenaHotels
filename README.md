@@ -27,7 +27,7 @@ Comptes de démonstration créés automatiquement au démarrage :
 | `RECEPTIONNISTE` | `reception@arenahotels.bj`  | `Reception@2026` | Chambres, clients, réservations                   |
 | `CLIENT`         | `client@arenahotels.bj`     | `Client@2026`    | Consultation des chambres et des disponibilités   |
 
-Le jeu de démonstration contient **14 chambres**, **8 clients** et **17 réservations**
+Le jeu de démonstration contient **24 chambres**, **8 clients** et **17 réservations**
 réparties autour de la date du jour (séjours passés, en cours et à venir).
 
 ---

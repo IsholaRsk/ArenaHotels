@@ -29,15 +29,6 @@ export class Client {
   telephone: string;
 
   @Column({ type: 'text', nullable: true })
-  adresse: string;
-
-  @Column({ length: 80, nullable: true })
-  ville: string;
-
-  @Column({ length: 80, nullable: true })
-  pays: string;
-
-  @Column({ type: 'text', nullable: true })
   notes: string;
 
   @OneToMany(() => Reservation, (reservation) => reservation.client)

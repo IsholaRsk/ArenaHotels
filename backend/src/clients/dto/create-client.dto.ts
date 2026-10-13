@@ -31,21 +31,6 @@ export class CreateClientDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(255)
-  adresse?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(80)
-  ville?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(80)
-  pays?: string;
-
-  @IsOptional()
-  @IsString()
   @MaxLength(1000)
   notes?: string;
 }
@@ -70,21 +55,6 @@ export class UpdateClientDto {
   @IsString()
   @Length(7, 30)
   telephone?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  adresse?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(80)
-  ville?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(80)
-  pays?: string;
 
   @IsOptional()
   @IsString()

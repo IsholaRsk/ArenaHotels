@@ -50,9 +50,6 @@ export interface Client {
   prenom: string;
   email: string;
   telephone?: string | null;
-  adresse?: string | null;
-  ville?: string | null;
-  pays?: string | null;
   notes?: string | null;
   createdAt?: string;
   reservations?: Reservation[];
