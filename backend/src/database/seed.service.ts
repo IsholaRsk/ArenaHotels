@@ -202,24 +202,21 @@ export class SeedService implements OnApplicationBootstrap {
     }
 
     // ---------------- Clients ----------------
+    // Fiches clients : identite et contact uniquement (ni adresse, ni ville, ni pays).
     const donneesClients = [
-      { nom: 'Sossou', prenom: 'Marie', email: 'marie.sossou@gmail.com', telephone: '+229 95 12 34 56', ville: 'Cotonou', pays: 'Benin' },
-      { nom: 'Dossou', prenom: 'Jean', email: 'jean.dossou@yahoo.fr', telephone: '+229 96 22 33 44', ville: 'Porto-Novo', pays: 'Benin' },
-      { nom: 'Adjovi', prenom: 'Claire', email: 'claire.adjovi@gmail.com', telephone: '+229 97 45 67 89', ville: 'Abomey-Calavi', pays: 'Benin' },
-      { nom: 'Traore', prenom: 'Ibrahim', email: 'ibrahim.traore@orange.ml', telephone: '+223 76 11 22 33', ville: 'Bamako', pays: 'Mali' },
-      { nom: 'OLORY', prenom: 'Lucio', email: 'client@arenahotels.bj', telephone: '+229 97 00 00 03', ville: 'Lome', pays: 'Togo' },
-      { nom: 'Dupont', prenom: 'Sophie', email: 'sophie.dupont@gmail.com', telephone: '+33 6 12 34 56 78', ville: 'Paris', pays: 'France' },
-      { nom: 'Hounkpatin', prenom: 'Eric', email: 'eric.hounkpatin@gmail.com', telephone: '+229 94 77 88 99', ville: 'Parakou', pays: 'Benin' },
-      { nom: 'Adeyemi', prenom: 'Bolanle', email: 'bolanle.adeyemi@gmail.com', telephone: '+234 803 445 5667', ville: 'Lagos', pays: 'Nigeria' },
+      { nom: 'Sossou', prenom: 'Marie', email: 'marie.sossou@gmail.com', telephone: '+229 95 12 34 56' },
+      { nom: 'Dossou', prenom: 'Jean', email: 'jean.dossou@yahoo.fr', telephone: '+229 96 22 33 44' },
+      { nom: 'Adjovi', prenom: 'Claire', email: 'claire.adjovi@gmail.com', telephone: '+229 97 45 67 89' },
+      { nom: 'Traore', prenom: 'Ibrahim', email: 'ibrahim.traore@orange.ml', telephone: '+223 76 11 22 33' },
+      { nom: 'OLORY', prenom: 'Lucio', email: 'client@arenahotels.bj', telephone: '+229 97 00 00 03' },
+      { nom: 'Dupont', prenom: 'Sophie', email: 'sophie.dupont@gmail.com', telephone: '+33 6 12 34 56 78' },
+      { nom: 'Hounkpatin', prenom: 'Eric', email: 'eric.hounkpatin@gmail.com', telephone: '+229 94 77 88 99' },
+      { nom: 'Adeyemi', prenom: 'Bolanle', email: 'bolanle.adeyemi@gmail.com', telephone: '+234 803 445 5667' },
     ];
 
     const clientsCrees: Client[] = [];
     for (const d of donneesClients) {
-      clientsCrees.push(
-        await this.clients.save(
-          this.clients.create({ ...d, adresse: `${d.ville}, quartier Ganhi` }),
-        ),
-      );
+      clientsCrees.push(await this.clients.save(this.clients.create({ ...d })));
     }
 
     // ---------------- Reservations ----------------

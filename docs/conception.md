@@ -90,9 +90,6 @@ classDiagram
     +string prenom
     +string email
     +string telephone
-    +string adresse
-    +string ville
-    +string pays
     +string notes
     +Date creeLe
     +Date majLe
@@ -205,9 +202,6 @@ erDiagram
     varchar prenom
     varchar email UK
     varchar telephone
-    text adresse
-    varchar ville
-    varchar pays
     text notes
     timestamp cree_le
     timestamp maj_le
@@ -245,7 +239,7 @@ erDiagram
 Légende : **souligné** = clé primaire (PK) · `#` = clé étrangère (FK) · `U` = unique.
 
 - **UTILISATEUR** (<u>id</u>, nom, email `U`, mot_de_passe, role, actif, cree_le, maj_le)
-- **CLIENT** (<u>id</u>, nom, prenom, email `U`, telephone, adresse, ville, pays, notes, cree_le, maj_le)
+- **CLIENT** (<u>id</u>, nom, prenom, email `U`, telephone, notes, cree_le, maj_le)
 - **CHAMBRE** (<u>id</u>, numero `U`, type, prix_par_nuit, capacite, etage, description, statut, cree_le, maj_le)
 - **RESERVATION** (<u>id</u>, reference `U`, #chambre_id, #client_id, date_arrivee, date_depart,
   nombre_personnes, statut, montant_total, notes, cree_le, maj_le)
