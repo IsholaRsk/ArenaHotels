@@ -58,18 +58,6 @@ export function ClientDetail() {
                   <div className="detail-libelle">Telephone</div>
                   <div className="detail-valeur">{d.telephone || '—'}</div>
                 </div>
-                <div>
-                  <div className="detail-libelle">Ville</div>
-                  <div className="detail-valeur">{d.ville || '—'}</div>
-                </div>
-                <div>
-                  <div className="detail-libelle">Pays</div>
-                  <div className="detail-valeur">{d.pays || '—'}</div>
-                </div>
-                <div>
-                  <div className="detail-libelle">Adresse</div>
-                  <div className="detail-valeur">{d.adresse || '—'}</div>
-                </div>
               </div>
               {d.notes ? (
                 <p style={{ marginTop: 16, color: 'var(--encre-doux)' }}>

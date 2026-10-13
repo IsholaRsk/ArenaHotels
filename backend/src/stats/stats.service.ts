@@ -90,11 +90,7 @@ export class StatsService {
       this.reservations.find({
         where: [
           {
-            dateArrivee: MoreThanOrEqual(debutMois),
-            statut: In([
-              StatutReservation.CONFIRMEE,
-              StatutReservation.EN_ATTENTE,
-            ]),
+            dateArrivee: Between(debutMois, addDays(finMois, -1)),
           },
         ],
         relations: { chambre: true, client: true },

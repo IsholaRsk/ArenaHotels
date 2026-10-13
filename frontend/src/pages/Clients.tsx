@@ -184,7 +184,6 @@ export function Clients() {
                     <th>Client</th>
                     <th>Email</th>
                     <th>Telephone</th>
-                    <th>Ville / Pays</th>
                     <th className="alignement-droite">Actions</th>
                   </tr>
                 </thead>
@@ -198,9 +197,6 @@ export function Clients() {
                       </td>
                       <td>{client.email}</td>
                       <td>{client.telephone || '—'}</td>
-                      <td className="cellule-secondaire">
-                        {[client.ville, client.pays].filter(Boolean).join(', ') || '—'}
-                      </td>
                       <td>
                         <div className="actions-ligne">
                           <Link to={`/clients/${client.id}`} className="bouton-icone" title="Fiche">

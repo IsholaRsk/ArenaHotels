@@ -1068,22 +1068,6 @@ textarea {
   color: var(--muted);
 }
 
-.ecran-connexion-comptes {
-  margin-top: 22px;
-  padding: 16px 18px;
-  border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  background: var(--surface);
-  font-size: 12.5px;
-  color: var(--muted);
-}
-
-.ecran-connexion-comptes code {
-  color: var(--encre);
-  cursor: pointer;
-  border-bottom: 1px dotted var(--bordure-forte);
-}
-
 /* ------------------------------------------------------------------ Responsive */
 
 @media (max-width: 940px) {
@@ -1239,7 +1223,7 @@ a.carte-chambre-media {
   .zoom-fermer { top: 10px; right: 12px; }
 }
 
-/* ================= Accueil client : hero + services + localisation ================= */
+/* ================= Accueil client : hero + services ================= */
 .bande-hero-grande {
   height: min(560px, 72vh);
 }
@@ -1288,9 +1272,6 @@ a.carte-chambre-media {
   flex-direction: column;
   gap: 8px;
 }
-.service-icone {
-  font-size: 28px;
-}
 .service-titre {
   font-weight: 700;
   font-size: 15.5px;
@@ -1301,49 +1282,6 @@ a.carte-chambre-media {
   line-height: 1.55;
 }
 
-.carte-localisation {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 26px;
-  align-items: center;
-  padding: 26px;
-  overflow: hidden;
-}
-.localisation-liste {
-  margin-top: 14px;
-  display: grid;
-  gap: 10px;
-  list-style: none;
-  padding: 0;
-}
-.localisation-liste li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: var(--encre-doux);
-}
-.localisation-liste li::before {
-  content: '📍';
-  font-size: 14px;
-}
-.carte-localisation img {
-  width: 100%;
-  height: 100%;
-  min-height: 240px;
-  object-fit: cover;
-  border-radius: var(--rayon);
-}
-
-@media (max-width: 860px) {
-  .carte-localisation {
-    grid-template-columns: 1fr;
-  }
-  .carte-localisation img {
-    order: -1;
-    max-height: 220px;
-  }
-}
 @media (max-width: 560px) {
   .grille-services {
     grid-template-columns: 1fr 1fr;
@@ -1357,5 +1295,156 @@ a.carte-chambre-media {
 @media (max-width: 400px) {
   .grille-services {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ================= Tableau de bord des performances ================= */
+.performance-periode {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.performance-periode strong {
+  color: var(--encre);
+  text-transform: capitalize;
+}
+.performance-grille {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  margin-top: 20px;
+}
+.performance-carte {
+  min-width: 0;
+  margin: 0;
+}
+.performance-taux {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+}
+.performance-taux strong {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 500;
+  line-height: 1;
+}
+.performance-taux span {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.performance-mesures {
+  margin-top: 24px;
+}
+.performance-mesure + .performance-mesure {
+  margin-top: 15px;
+}
+.performance-mesure-entete,
+.performance-statut-entete,
+.performance-revenu-secondaire {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.performance-mesure-entete {
+  margin-bottom: 8px;
+  color: var(--encre-doux);
+  font-size: 13px;
+}
+.performance-mesure-entete strong,
+.performance-statut-entete strong {
+  color: var(--encre);
+  font-size: 13px;
+}
+.performance-statut {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--bordure);
+}
+.performance-statut > :last-child {
+  margin-top: 8px;
+}
+.performance-total-reservations {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+.performance-revenu-principal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 18px;
+  border-bottom: 1px solid var(--bordure);
+}
+.performance-revenu-principal strong {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 500;
+}
+.performance-revenu-secondaire {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--bordure);
+  color: var(--encre-doux);
+  font-size: 13px;
+}
+.performance-revenu-secondaire:last-child {
+  border-bottom: 0;
+}
+.performance-revenu-secondaire strong {
+  color: var(--encre);
+  text-align: right;
+}
+.performance-flux {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.performance-flux-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: #f8f7f4;
+  color: var(--muted);
+  font-size: 12px;
+}
+.performance-flux-item strong {
+  color: var(--encre);
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+}
+.performance-alerte {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid #e6d8b8;
+  border-radius: var(--rayon);
+  background: var(--attente-fond);
+  color: var(--attente);
+  font-size: 12.5px;
+}
+.performance-sans-alerte {
+  margin: 18px 0 0;
+  color: var(--succes);
+  font-size: 12.5px;
+}
+.performance-arrivees {
+  margin-top: 20px;
+}
+
+@media (max-width: 560px) {
+  .performance-flux {
+    grid-template-columns: 1fr;
+  }
+  .performance-revenu-secondaire {
+    align-items: flex-start;
   }
 }

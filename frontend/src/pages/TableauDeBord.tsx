@@ -11,7 +11,7 @@ import {
 } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useFetch } from '../hooks/useFetch';
-import { IMAGE_ACCUEIL, IMAGE_LOBBY, IMAGE_LOUVRE } from '../utils/images';
+import { IMAGE_HERO, IMAGE_LOBBY } from '../utils/images';
 import {
   LIBELLES_TYPE_CHAMBRE,
   dateAujourdhui,
@@ -21,12 +21,12 @@ import {
 
 /** Services mis en avant sur l'accueil client */
 const SERVICES = [
-  { icone: '🛎️', titre: 'Reception 24h/24', texte: 'Une equipe attentionnee, jour et nuit.' },
-  { icone: '🥐', titre: 'Petit-dejeuner', texte: 'Buffet gourmand servi chaque matin.' },
-  { icone: '📶', titre: 'Wi-Fi fibre', texte: 'Connexion rapide et gratuite partout.' },
-  { icone: '🧳', titre: 'Bagagerie', texte: 'Deposez vos bagages avant ou apres le sejour.' },
-  { icone: '🧹', titre: 'Menage quotidien', texte: 'Une chambre impeccable chaque jour.' },
-  { icone: '🗺️', titre: 'Conciergerie', texte: 'Conseils et billets pour vos visites a Paris.' },
+  { titre: 'Reception 24h/24', texte: 'Une equipe attentionnee, jour et nuit.' },
+  { titre: 'Petit-dejeuner', texte: 'Buffet gourmand servi chaque matin.' },
+  { titre: 'Wi-Fi fibre', texte: 'Connexion rapide et gratuite partout.' },
+  { titre: 'Bagagerie', texte: 'Deposez vos bagages avant ou apres le sejour.' },
+  { titre: 'Menage quotidien', texte: 'Une chambre impeccable chaque jour.' },
+  { titre: 'Conciergerie', texte: 'Conseils et reservations pour organiser vos sorties.' },
 ];
 
 /** Page d'accueil : bandeau photographique + indicateurs epures */
@@ -37,20 +37,20 @@ export function TableauDeBord() {
   const stats = useFetch(() => apiStats.tableauDeBord(), [estDuPersonnel]);
   const catalogue = useFetch(() => apiChambres.lister({ limit: 100 }), []);
 
-  // -------- Vue client : accueil photographique + services + localisation --------
+  // -------- Vue client : accueil photographique et services --------
   if (!estDuPersonnel) {
     return (
       <>
         <div className="bande-hero bande-hero-grande">
-          <img src={IMAGE_ACCUEIL} alt="Arena Hotels a Paris, pres du Louvre" />
+          <img src={IMAGE_HERO} alt="Façade d'Arena Hotels" />
           <div className="bande-hero-voile">
             <div className="bande-hero-titre">
               {utilisateur
                 ? `Bonjour, ${utilisateur.nom.split(' ')[0]}.`
-                : 'Bienvenue chez Arena Hotels, Paris.'}
+                : 'Bienvenue chez Arena Hotels.'}
             </div>
             <div className="bande-hero-texte">
-              Un ecrin de calme a deux pas du Louvre, au coeur de Paris.
+              Un cadre élégant pensé pour un séjour calme et confortable.
             </div>
             <div className="hero-actions">
               <Link to="/chambres" className="bouton">Decouvrir nos chambres</Link>
@@ -64,28 +64,15 @@ export function TableauDeBord() {
         <div className="page">
           <h2 className="carte-titre" style={{ fontSize: 24 }}>Nos services</h2>
           <p className="carte-description">
-            Tout pour un sejour confortable, au coeur de Paris.
+            Tout pour un séjour confortable.
           </p>
           <div className="grille-services">
             {SERVICES.map((service) => (
               <div className="carte carte-service" key={service.titre}>
-                <div className="service-icone">{service.icone}</div>
                 <div className="service-titre">{service.titre}</div>
                 <div className="service-texte">{service.texte}</div>
               </div>
             ))}
-          </div>
-
-          <div className="carte carte-localisation">
-            <div className="localisation-texte">
-              <h2 className="carte-titre" style={{ fontSize: 24 }}>
-                Au coeur de Paris, pres du Louvre
-              </h2>
-              <p className="carte-description">
-                L'hotel vous place a quelques minutes des plus beaux sites de la capitale.
-              </p>
-            </div>
-            <img src={IMAGE_LOUVRE} alt="Le Louvre, a quelques minutes de l'hotel" />
           </div>
         </div>
       </>
