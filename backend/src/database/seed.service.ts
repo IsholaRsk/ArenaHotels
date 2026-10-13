@@ -44,21 +44,21 @@ export class SeedService implements OnApplicationBootstrap {
       telephone: string;
     }> = [
       {
-        nom: 'Rodrigue Ishola',
+        nom: 'Koffi DOSSA',
         email: 'admin@arenahotels.bj',
         motDePasse: 'Admin@2026',
         role: Role.ADMIN,
         telephone: '+229 97 00 00 01',
       },
       {
-        nom: 'Awa Adjovi',
+        nom: 'Hannane DAOUDA',
         email: 'reception@arenahotels.bj',
         motDePasse: 'Reception@2026',
         role: Role.RECEPTIONNISTE,
         telephone: '+229 97 00 00 02',
       },
       {
-        nom: 'Kofi Mensah',
+        nom: 'Lucio OLORY',
         email: 'client@arenahotels.bj',
         motDePasse: 'Client@2026',
         role: Role.CLIENT,
@@ -78,11 +78,23 @@ export class SeedService implements OnApplicationBootstrap {
           }),
         );
         this.logger.log(`Compte de demonstration cree : ${compte.email}`);
+      } else if (existe.nom !== compte.nom) {
+        // Synchronise aussi les comptes de démonstration déjà présents en base.
+        await this.utilisateurs.update(existe.id, { nom: compte.nom });
       }
     }
   }
 
   private async seedMetier(): Promise<void> {
+    const clientDemo = await this.clients.findOne({
+      where: { email: 'client@arenahotels.bj' },
+    });
+    if (clientDemo?.prenom === 'Kofi' && clientDemo.nom === 'Mensah') {
+      clientDemo.prenom = 'Lucio';
+      clientDemo.nom = 'OLORY';
+      await this.clients.save(clientDemo);
+    }
+
     const nbChambres = await this.chambres.count();
     if (nbChambres > 0) return;
 
@@ -195,7 +207,7 @@ export class SeedService implements OnApplicationBootstrap {
       { nom: 'Dossou', prenom: 'Jean', email: 'jean.dossou@yahoo.fr', telephone: '+229 96 22 33 44', ville: 'Porto-Novo', pays: 'Benin' },
       { nom: 'Adjovi', prenom: 'Claire', email: 'claire.adjovi@gmail.com', telephone: '+229 97 45 67 89', ville: 'Abomey-Calavi', pays: 'Benin' },
       { nom: 'Traore', prenom: 'Ibrahim', email: 'ibrahim.traore@orange.ml', telephone: '+223 76 11 22 33', ville: 'Bamako', pays: 'Mali' },
-      { nom: 'Mensah', prenom: 'Kofi', email: 'client@arenahotels.bj', telephone: '+229 97 00 00 03', ville: 'Lome', pays: 'Togo' },
+      { nom: 'OLORY', prenom: 'Lucio', email: 'client@arenahotels.bj', telephone: '+229 97 00 00 03', ville: 'Lome', pays: 'Togo' },
       { nom: 'Dupont', prenom: 'Sophie', email: 'sophie.dupont@gmail.com', telephone: '+33 6 12 34 56 78', ville: 'Paris', pays: 'France' },
       { nom: 'Hounkpatin', prenom: 'Eric', email: 'eric.hounkpatin@gmail.com', telephone: '+229 94 77 88 99', ville: 'Parakou', pays: 'Benin' },
       { nom: 'Adeyemi', prenom: 'Bolanle', email: 'bolanle.adeyemi@gmail.com', telephone: '+234 803 445 5667', ville: 'Lagos', pays: 'Nigeria' },

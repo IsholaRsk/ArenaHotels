@@ -1,209 +1,237 @@
-import { useState } from 'react';
-import { apiReservations } from '../api/client';
+import { Link } from 'react-router-dom';
+import { apiStats } from '../api/client';
 import { EntetePage } from '../components/Layout';
-import { Alerte, CarteStat, Chargement, EtatVide } from '../components/ui';
+import {
+  Alerte,
+  BadgeReservation,
+  BarreProgression,
+  CarteStat,
+  Chargement,
+  EtatVide,
+} from '../components/ui';
 import { useFetch } from '../hooks/useFetch';
-import { dateAujourdhui, formaterDateCourte, moisCourant } from '../utils/format';
+import type { StatutReservation } from '../types';
+import { formaterDate, formaterMontant } from '../utils/format';
 
-const STYLE_CELLULE = (occupe: boolean, enAttente: boolean, aujourdhui: boolean) =>
-  ({
-    height: 30,
-    minWidth: 30,
-    padding: 0,
-    borderRadius: 5,
-    background: occupe
-      ? enAttente
-        ? 'repeating-linear-gradient(45deg,#fcd34d,#fcd34d 5px,#fde68a 5px,#fde68a 10px)'
-        : 'var(--primaire-clair)'
-      : '#f1f4f9',
-    outline: aujourdhui ? '2px solid var(--accent)' : 'none',
-  }) as React.CSSProperties;
+function pourcentage(part: number, total: number): number {
+  return total > 0 ? Math.round((part / total) * 100) : 0;
+}
 
-/** Planning mensuel : occupation jour par jour de chaque chambre */
+/** Tableau de bord des performances accessible depuis la rubrique Planning. */
 export function Planning() {
-  const [mois, setMois] = useState(moisCourant());
-  const planning = useFetch(() => apiReservations.planning(mois), [mois]);
-  const lignes = planning.donnees ?? [];
-  const meta = planning.meta as
-    | { jours?: string[]; tauxOccupation?: number; reservationsDuMois?: number; nombreChambres?: number }
-    | undefined;
-  const jours = meta?.jours ?? [];
-  const aujourdHui = dateAujourdhui();
+  const performances = useFetch(() => apiStats.tableauDeBord(), []);
+  const d = performances.donnees;
 
-  const decalerMois = (delta: number) => {
-    const [annee, m] = mois.split('-').map(Number);
-    const date = new Date(Date.UTC(annee, m - 1 + delta, 1));
-    setMois(
-      `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`,
-    );
-  };
+  const statuts: Array<{ statut: StatutReservation; nombre: number }> = d
+    ? [
+        { statut: 'CONFIRMEE', nombre: d.reservations.confirmees },
+        { statut: 'EN_ATTENTE', nombre: d.reservations.enAttente },
+        { statut: 'TERMINEE', nombre: d.reservations.terminees },
+        { statut: 'ANNULEE', nombre: d.reservations.annulees },
+      ]
+    : [];
+  const totalStatuts = statuts.reduce((total, ligne) => total + ligne.nombre, 0);
+  const periode = d
+    ? new Intl.DateTimeFormat('fr-FR', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }).format(new Date(`${d.mois}-01T00:00:00.000Z`))
+    : '';
 
   return (
     <>
       <EntetePage
-        titre="Planning des reservations"
-        sousTitre="Occupation de chaque chambre, jour par jour."
+        titre="Performances de l'hôtel"
+        sousTitre="Suivi de l'occupation, des réservations et des revenus."
         actions={
-          <>
-            <button type="button" className="bouton bouton-secondaire" onClick={() => decalerMois(-1)}>
-              ← Mois precedent
-            </button>
-            <input
-              type="month"
-              value={mois}
-              onChange={(e) => setMois(e.target.value || moisCourant())}
-              style={{ width: 'auto' }}
-            />
-            <button type="button" className="bouton bouton-secondaire" onClick={() => decalerMois(1)}>
-              Mois suivant →
-            </button>
-          </>
+          <Link to="/reservations" className="bouton bouton-secondaire">
+            Voir les réservations
+          </Link>
         }
       />
 
       <div className="page">
-        <Alerte type="erreur">{planning.erreur}</Alerte>
+        <Alerte type="erreur">{performances.erreur}</Alerte>
+        {performances.chargement ? <Chargement texte="Chargement des performances..." /> : null}
 
-        {meta ? (
-          <div className="grille grille-stats" style={{ marginBottom: 20 }}>
-            <CarteStat
-              libelle="Taux d'occupation"
-              valeur={`${meta.tauxOccupation ?? 0}%`}
-              detail={`Mois ${mois}`}
-              variante="accent"
-            />
-            <CarteStat
-              libelle="Reservations du mois"
-              valeur={meta.reservationsDuMois ?? 0}
-              variante="info"
-            />
-            <CarteStat
-              libelle="Chambres suivies"
-              valeur={meta.nombreChambres ?? 0}
-              variante="succes"
-            />
-          </div>
-        ) : null}
-
-        <div className="carte">
-          <h2 className="carte-titre">Occupation {mois}</h2>
-          <p className="carte-description">
-            Survolez une case pour voir la reservation et le client concerne.
-          </p>
-
-          {planning.chargement ? <Chargement texte="Construction du planning..." /> : null}
-
-          {!planning.chargement && lignes.length === 0 ? (
-            <EtatVide icone="🗓️" titre="Aucune chambre a afficher" />
-          ) : null}
-
-          {!planning.chargement && lignes.length > 0 ? (
-            <div className="tableau-conteneur">
-              <table style={{ minWidth: 'max-content' }}>
-                <thead>
-                  <tr>
-                    <th
-                      style={{
-                        position: 'sticky',
-                        left: 0,
-                        background: '#fafbfe',
-                        zIndex: 2,
-                        minWidth: 110,
-                      }}
-                    >
-                      Chambre
-                    </th>
-                    {jours.map((jour) => (
-                      <th
-                        key={jour}
-                        style={{
-                          padding: '8px 2px',
-                          textAlign: 'center',
-                          minWidth: 30,
-                          color: jour === aujourdHui ? 'var(--accent-fonce)' : undefined,
-                        }}
-                        title={jour}
-                      >
-                        {formaterDateCourte(jour)}
-                      </th>
-                    ))}
-                    <th style={{ minWidth: 90 }}>Occupation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lignes.map((ligne) => (
-                    <tr key={ligne.chambreId}>
-                      <td
-                        className="cellule-principale"
-                        style={{
-                          position: 'sticky',
-                          left: 0,
-                          background: 'var(--surface)',
-                          zIndex: 1,
-                        }}
-                      >
-                        {ligne.numero}
-                        <div className="cellule-secondaire">{ligne.type}</div>
-                      </td>
-                      {jours.map((jour) => {
-                        const caseJour = ligne.occupation[jour];
-                        const aujourdhui = jour === aujourdHui;
-                        return (
-                          <td
-                            key={jour}
-                            style={STYLE_CELLULE(
-                              Boolean(caseJour),
-                              caseJour?.statut === 'EN_ATTENTE',
-                              aujourdhui,
-                            )}
-                            title={
-                              caseJour
-                                ? `${caseJour.reference} — ${caseJour.client} (${caseJour.statut})`
-                                : aujourdhui
-                                  ? 'Libre aujourd\'hui'
-                                  : 'Libre'
-                            }
-                          />
-                        );
-                      })}
-                      <td className="cellule-secondaire">{ligne.tauxOccupation}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {d ? (
+          <>
+            <div className="performance-periode">
+              <span>Période analysée : <strong>{periode}</strong></span>
+              <span>Données actualisées le {formaterDate(d.date)}</span>
             </div>
-          ) : null}
 
-          <div className="legende">
-            <span>
-              <span
-                className="legende-pastille"
-                style={{ background: 'var(--accent)' }}
+            <div className="grille grille-stats">
+              <CarteStat
+                libelle="Occupation du mois"
+                valeur={`${d.tauxOccupation}%`}
+                detail={periode}
+                variante="accent"
               />
-              Reservation confirmee
-            </span>
-            <span>
-              <span
-                className="legende-pastille"
-                style={{
-                  background: 'repeating-linear-gradient(45deg,#c9a227,#c9a227 5px,#e6c860 5px,#e6c860 10px)',
-                }}
+              <CarteStat
+                libelle="Revenus du mois"
+                valeur={formaterMontant(d.revenus.duMois)}
+                detail={`${formaterMontant(d.revenus.aVenir)} confirmés à venir`}
+                variante="succes"
               />
-              En attente de confirmation
-            </span>
-            <span>
-              <span className="legende-pastille" style={{ background: 'var(--fond-2)' }} />
-              Chambre libre
-            </span>
-            <span>
-              <span
-                className="legende-pastille"
-                style={{ background: '#fff', outline: '2px solid var(--accent)' }}
+              <CarteStat
+                libelle="Réservations du mois"
+                valeur={d.reservations.ceMois}
+                detail={`${d.reservations.enAttente} en attente de traitement`}
+                variante="info"
               />
-              Jour actuel
-            </span>
-          </div>
-        </div>
+              <CarteStat
+                libelle="Nouveaux clients"
+                valeur={d.clients.nouveauxCeMois}
+                detail={`${d.clients.total} clients au total`}
+              />
+            </div>
+
+            <div className="grille grille-2 performance-grille">
+              <section className="carte performance-carte">
+                <h2 className="carte-titre">Occupation du parc</h2>
+                <p className="carte-description">
+                  Nuits réservées rapportées à la capacité disponible sur le mois.
+                </p>
+                <div className="performance-taux">
+                  <strong>{d.tauxOccupation}%</strong>
+                  <span>occupation moyenne · {periode}</span>
+                </div>
+                <BarreProgression pourcentage={d.tauxOccupation} />
+
+                <div className="performance-mesures">
+                  {[
+                    { libelle: 'Chambres occupées', valeur: d.chambres.occupees },
+                    { libelle: 'Chambres libres', valeur: d.chambres.libres },
+                    { libelle: 'En maintenance', valeur: d.chambres.maintenance },
+                  ].map((mesure) => (
+                    <div className="performance-mesure" key={mesure.libelle}>
+                      <div className="performance-mesure-entete">
+                        <span>{mesure.libelle}</span>
+                        <strong>{mesure.valeur} / {d.chambres.total}</strong>
+                      </div>
+                      <BarreProgression
+                        pourcentage={pourcentage(mesure.valeur, d.chambres.total)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="carte performance-carte">
+                <h2 className="carte-titre">Réservations par statut</h2>
+                <p className="carte-description">
+                  Répartition des réservations enregistrées dans le système.
+                </p>
+                {statuts.map((ligne) => (
+                  <div className="performance-statut" key={ligne.statut}>
+                    <div className="performance-statut-entete">
+                      <BadgeReservation statut={ligne.statut} />
+                      <strong>{ligne.nombre}</strong>
+                    </div>
+                    <BarreProgression
+                      pourcentage={pourcentage(ligne.nombre, totalStatuts)}
+                    />
+                  </div>
+                ))}
+                <div className="performance-total-reservations">
+                  {d.reservations.total} réservation(s) au total
+                </div>
+              </section>
+            </div>
+
+            <div className="grille grille-2 performance-grille">
+              <section className="carte performance-carte">
+                <h2 className="carte-titre">Performance financière</h2>
+                <p className="carte-description">Revenus réalisés et séjours confirmés à venir.</p>
+                <div className="performance-revenu-principal">
+                  <span className="detail-libelle">Revenus réalisés ce mois</span>
+                  <strong>{formaterMontant(d.revenus.duMois)}</strong>
+                </div>
+                <div className="performance-revenu-secondaire">
+                  <span>Revenus confirmés à venir</span>
+                  <strong>{formaterMontant(d.revenus.aVenir)}</strong>
+                </div>
+                <div className="performance-revenu-secondaire">
+                  <span>Réservations prises ce mois</span>
+                  <strong>{d.reservations.ceMois}</strong>
+                </div>
+              </section>
+
+              <section className="carte performance-carte">
+                <h2 className="carte-titre">Activité du jour</h2>
+                <p className="carte-description">Mouvements attendus et points à traiter.</p>
+                <div className="performance-flux">
+                  <div className="performance-flux-item">
+                    <span>Arrivées prévues</span>
+                    <strong>{d.reservations.arriveesDuJour}</strong>
+                  </div>
+                  <div className="performance-flux-item">
+                    <span>Départs prévus</span>
+                    <strong>{d.reservations.departsDuJour}</strong>
+                  </div>
+                </div>
+                {d.alertes.maintenance > 0 || d.alertes.enAttente > 0 ? (
+                  <div className="performance-alerte">
+                    {d.alertes.enAttente > 0
+                      ? `${d.alertes.enAttente} réservation(s) en attente. `
+                      : ''}
+                    {d.alertes.maintenance > 0
+                      ? `${d.alertes.maintenance} chambre(s) en maintenance.`
+                      : ''}
+                  </div>
+                ) : (
+                  <p className="performance-sans-alerte">Aucun point prioritaire à traiter.</p>
+                )}
+              </section>
+            </div>
+
+            <section className="carte performance-arrivees">
+              <h2 className="carte-titre">Prochaines arrivées</h2>
+              <p className="carte-description">
+                Séjours à préparer parmi les prochaines réservations confirmées ou en attente.
+              </p>
+              {d.prochainesArrivees.length === 0 ? (
+                <EtatVide
+                  titre="Aucune arrivée à venir"
+                  texte="Les prochaines réservations apparaîtront ici."
+                />
+              ) : (
+                <div className="tableau-conteneur">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Référence</th>
+                        <th>Client</th>
+                        <th>Chambre</th>
+                        <th>Arrivée</th>
+                        <th>Départ</th>
+                        <th className="alignement-droite">Montant</th>
+                        <th>Statut</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {d.prochainesArrivees.map((arrivee) => (
+                        <tr key={arrivee.id}>
+                          <td className="cellule-principale">{arrivee.reference}</td>
+                          <td>{arrivee.client}</td>
+                          <td>Chambre {arrivee.chambre}</td>
+                          <td>{formaterDate(arrivee.dateArrivee)}</td>
+                          <td>{formaterDate(arrivee.dateDepart)}</td>
+                          <td className="alignement-droite">
+                            {formaterMontant(arrivee.montantTotal)}
+                          </td>
+                          <td><BadgeReservation statut={arrivee.statut} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+          </>
+        ) : null}
       </div>
     </>
   );

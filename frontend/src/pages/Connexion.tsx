@@ -2,13 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Alerte } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
-import { IMAGE_ACCUEIL } from '../utils/images';
-
-const COMPTES_DEMO = [
-  { role: 'Administrateur', email: 'admin@arenahotels.bj', motDePasse: 'Admin@2026' },
-  { role: 'Receptionniste', email: 'reception@arenahotels.bj', motDePasse: 'Reception@2026' },
-  { role: 'Client', email: 'client@arenahotels.bj', motDePasse: 'Client@2026' },
-];
+import { IMAGE_HERO } from '../utils/images';
 
 /** Page de connexion minimaliste : photographie pleine hauteur + formulaire epure */
 export function Connexion() {
@@ -37,15 +31,12 @@ export function Connexion() {
     }
   };
 
-  const remplir = (email: string, motDePasse: string) =>
-    setFormulaire({ email, motDePasse });
-
   return (
     <div className="ecran-connexion">
       <section className="ecran-connexion-image">
-        <img src={IMAGE_ACCUEIL} alt="Facade de l'hotel a Paris, pres du Louvre" />
+        <img src={IMAGE_HERO} alt="Façade d'Arena Hotels" />
         <div className="ecran-connexion-image-legende">
-          Arena Hotels — Paris, pres du Louvre. Vingt-quatre chambres, une seule exigence : le calme.
+          Arena Hotels — un lieu pensé pour le calme et le confort.
         </div>
       </section>
 
@@ -96,17 +87,6 @@ export function Connexion() {
               {chargement ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
-
-          <div className="ecran-connexion-comptes">
-            Comptes de demonstration — cliquez pour remplir :
-            {COMPTES_DEMO.map((compte) => (
-              <div key={compte.email} style={{ marginTop: 6 }}>
-                <code onClick={() => remplir(compte.email, compte.motDePasse)}>
-                  {compte.role} · {compte.email}
-                </code>
-              </div>
-            ))}
-          </div>
 
           <div className="pied-page-connexion">
             Pas encore de compte ?{' '}
